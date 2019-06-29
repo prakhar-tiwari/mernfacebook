@@ -3,6 +3,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import UserAbout from './about/UserAbout';
 import CreatePost from '../posts/CreatePost';
+import PhotoGrid from './photos/PhotoGrid';
+import FriendGrid from './friends/FriendGrid';
 
 const useStyles = theme => ({
     timeline: {
@@ -75,6 +77,12 @@ const useStyles = theme => ({
         marginLeft: '20px',
         width: '120%'
     },
+    photoGrid:{
+        marginTop:theme.spacing(2)
+    },
+    friendGrid:{
+        marginTop:theme.spacing(2)
+    }
 
 });
 
@@ -108,7 +116,16 @@ class TimeLine extends Component {
                     <Grid container spacing={0}>
                         <Grid item xs={5}>
                             <div className={classes.leftContent}>
-                                <UserAbout />
+                                <div className={classes.userAbout}>
+                                    <UserAbout />
+                                </div>
+                                <div className={classes.photoGrid}>
+                                    <PhotoGrid />
+                                </div>
+                                <div className={classes.friendGrid}>
+                                    <FriendGrid />
+                                </div>
+
                             </div>
                         </Grid>
 
