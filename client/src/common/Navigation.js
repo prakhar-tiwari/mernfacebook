@@ -19,10 +19,14 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import { Link, withRouter } from 'react-router-dom';
+import {connect} from 'react-redux';
 
 const useStyles = theme => ({
     grow: {
         flexGrow: 1,
+    },
+    appBar:{
+        minHeight:'50px'
     },
     menuButton: {
         marginRight: theme.spacing(2),
@@ -95,6 +99,8 @@ class Navigation extends Component {
     render() {
         const { classes } = this.props;
 
+        const {user} = this.props.auth;
+
         const isMenuOpen = Boolean(this.state.anchorEl);
         const isMobileMenuOpen = Boolean(this.state.mobileMoreAnchorEl);
 
@@ -147,7 +153,7 @@ class Navigation extends Component {
                     <ListItemAvatar>
                         <Avatar alt="Remy Sharp" src="images/flash.jpg" />
                     </ListItemAvatar>
-                    <ListItemText primary="Prakhar" />
+                    <ListItemText primary={user.name} />
                 </MenuItem>
                 <MenuItem onClick={() => this.props.history.push('/')}>
                     <IconButton aria-label="Show 4 new mails" color="inherit">
@@ -187,7 +193,7 @@ class Navigation extends Component {
 
         return (
             <div className={classes.grow}>
-                <AppBar position="static">
+                <AppBar className={classes.appBar} position="static">
                     <Toolbar>
                         <Typography className={classes.title} variant="h6" noWrap>
                             SocialConnect
@@ -205,13 +211,12 @@ class Navigation extends Component {
                                 inputProps={{ 'aria-label': 'Search' }}
                             />
                         </div>
-                        <div className={classes.grow} />
                         <div className={classes.sectionDesktop}>
                             <MenuItem onClick={() => this.props.history.push('/timeline')}>
                                 <ListItemAvatar>
                                     <Avatar alt="Remy Sharp" src="images/flash.jpg" />
                                 </ListItemAvatar>
-                                <ListItemText primary="Prakhar" />
+                                <ListItemText primary={user.name} />
                             </MenuItem>
                             <MenuItem onClick={() => this.props.history.push('/')}>
                                 <IconButton aria-label="Show 4 new mails" color="inherit">
@@ -261,4 +266,8 @@ class Navigation extends Component {
     }
 }
 
-export default withStyles(useStyles)(withRouter(Navigation));
+const mapStateToProps=state=>({
+    auth:state.auth
+})
+
+export default connect(mapStateToProps)(withStyles(useStyles)(withRouter(Navigation)));

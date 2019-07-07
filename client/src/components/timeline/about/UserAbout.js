@@ -36,13 +36,11 @@ const useStyles = makeStyles(theme => ({
     },
     infoDetails: {
         marginTop: theme.spacing(1),
-        alignItems: 'left',
-        textAlign: 'left',
         "& ul": {
-            listStyleType: 'none'
-        },
-        "& ul li": {
-            padding: '4px 16px 4px 0'
+            alignItems:'left',
+            textAlign:'left',
+            listStyleType: 'none',
+            transform:'translateX(-10%)',
         },
         "& ul li a": {
             color: '#385898',
@@ -88,8 +86,11 @@ const useStyles = makeStyles(theme => ({
     aboutAvatar: {
         margin: 10,
         color: '#fff',
-        background:'#385898'
-    }
+        background: '#385898'
+    },
+    inline: {
+        display: 'inline',
+    },
 }));
 
 export default function UserAbout() {
@@ -137,8 +138,15 @@ export default function UserAbout() {
                     }
 
                     <Divider />
+
                 </div>
                 <div className={classes.infoDetails}>
+                    {/* <List>
+                        <ListItem>
+                            <SchoolIcon className={classes.schoolIcon} />
+                            <ListItemText primary="Went to"> <a>St. Lawrence School</a> </ListItemText>
+                        </ListItem>
+                    </List> */}
                     <ul>
                         <li><div><SchoolIcon /> Working in <a>Tata Consultancy Services</a></div></li>
                         <li><div><SchoolIcon /> Studied at <a>Shri Ram Murti Smarak College of Enginnering and Technology</a></div></li>

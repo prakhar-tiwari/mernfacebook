@@ -1,10 +1,8 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
-import GridListTileBar from '@material-ui/core/GridListTileBar';
 import ImageIcon from '@material-ui/icons/Image';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -12,6 +10,7 @@ import Avatar from '@material-ui/core/Avatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import { green } from '@material-ui/core/colors';
 import tileData from '../friends/tileData';
+import Photo from './Photo';
 
 const useStyles = makeStyles(theme => ({
     photoGrid: {
@@ -35,6 +34,9 @@ const useStyles = makeStyles(theme => ({
     },
     gridList: {
         height: 450,
+        "& img":{
+            cursor:'pointer'
+        }
     },
     icon: {
         color: 'rgba(255, 255, 255, 0.54)',
@@ -48,6 +50,13 @@ const useStyles = makeStyles(theme => ({
 
 export default function PhotoGrid() {
     const classes = useStyles();
+    const [openPhoto,setOpenPhoto]=React.useState(false);
+    const [imageDetails,setImageDetails]=React.useState(null);
+
+    function onPhotoClick(image){
+        setOpenPhoto(true);
+        setImageDetails(image);
+    }
     return (
         <div>
             <Paper className={classes.photoGrid}>
@@ -65,10 +74,13 @@ export default function PhotoGrid() {
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
                         {tileData.map(tile => (
                             <GridListTile key={tile.img} cols={tile.cols || 1}>
-                                <img src={tile.img} alt={tile.title} />
+                                <img onClick={()=>onPhotoClick(tile.img)} src={tile.img} alt={tile.title} />
                             </GridListTile>
                         ))}
                     </GridList>
+                    <Photo openPhoto={openPhoto} imageDetails={imageDetails} onclose={()=>{
+                        setOpenPhoto(false)
+                    }}/>
                 </div>
             </Paper>
         </div>

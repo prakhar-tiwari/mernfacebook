@@ -11,6 +11,9 @@ import CommentIcon from '@material-ui/icons/Comment';
 import LikeIcon from '@material-ui/icons/ThumbUp';
 import ShareIcon from '@material-ui/icons/Share';
 import Typography from '@material-ui/core/Typography';
+import Comments from './comments/Comments';
+import CreateComment from './comments/CreateComment';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = theme => ({
     root: {
@@ -29,24 +32,50 @@ const useStyles = theme => ({
     post: {
         width: '100%'
     },
-    actionsList:{
-        padding: theme.spacing(1, 2),
-        display:'flex',
+    actionsResult:{
+        padding: theme.spacing(1, 0),
+        display: 'flex',
         maxWidth: '100%',
         backgroundColor: theme.palette.background.paper,
-        justifyContent:'space-around'
     },
-    actionItems:{
-        justifyContent:'center',
-        alignItems:'center',
-        textAlign:'center',
+    actionsResultItem:{
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: 0,
+    },
+    actionsList: {
+        padding: theme.spacing(1, 2),
+        display: 'flex',
+        maxWidth: '100%',
+        backgroundColor: theme.palette.background.paper,
+        justifyContent: 'space-around'
+    },
+    actionItems: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
         padding: theme.spacing(0, 2),
-        '&:hover':{
-            cursor:'pointer'
+        '&:hover': {
+            cursor: 'pointer'
         }
     },
-    actionIcons:{
-        margin:theme.spacing(-0.5,0.5),
+    actionIcons: {
+        margin: theme.spacing(-0.5, 0.5),
+    },
+    commentSection:{
+        marginTop:theme.spacing(1)
+    },
+    createComment:{
+        marginTop:theme.spacing(2)
+    },
+    comments:{
+        marginTop:theme.spacing(1)
+    },
+    divider: {
+        borderBottom: '1px solid #ddd',
+        margin: '5px 7px 6px',
+        paddingTop: '1px'
     }
 })
 
@@ -67,11 +96,25 @@ class Feed extends Component {
                         </ListItem >
                     </List>
                     <SinglePost />
-                    <Paper className={classes.actionsList}>
-                         <Typography className={classes.actionItems}><LikeIcon className={classes.actionIcons} color="primary" />Like</Typography>
-                         <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} color="secondary" />Comment</Typography>
-                         <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} color="primary" />Share</Typography>
-                    </Paper>
+                    <div className={classes.actionsResult}>
+                    <Typography className={classes.actionsResultItem}><LikeIcon className={classes.actionIcons} color="primary" /></Typography>
+                    <Typography className={classes.actionsResultItem}>240</Typography>
+                    </div>
+                    <hr className={classes.divider}/>
+                    <div className={classes.actionsList}>
+                        <Typography className={classes.actionItems}><LikeIcon className={classes.actionIcons} color="primary" />Like</Typography>
+                        <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} color="secondary" />Comment</Typography>
+                        <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} color="primary" />Share</Typography>
+                    </div>
+                    <hr className={classes.divider}/>
+                    <div className={classes.commentSection}>
+                        <div className={classes.createComment}>
+                            <CreateComment />
+                        </div>
+                        <div className={classes.comments}>
+                            <Comments />
+                        </div>
+                    </div>
                 </Paper>
             </div>
         )

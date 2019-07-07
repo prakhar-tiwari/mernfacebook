@@ -8,6 +8,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TimeLine from './components/timeline/TimeLine';
 import DashBoard from './components/posts/DashBoard';
+import Auth from './components/auth/Auth';
+import PrivateRoute from './utils/PrivateRoute';
 
 const useStyles = theme => ({
   root: {
@@ -24,33 +26,42 @@ class App extends Component {
       <BrowserRouter>
         <div className={classes.root}>
           <Grid container spacing={0}>
-            <Grid item xs={12}>
-              <Navigation />
-            </Grid>
 
             <Switch>
-              <Route exact path="/">
+              <PrivateRoute exact path="/">
+                <Grid item xs={12}>
+                  <Navigation />
+                </Grid>
                 <Grid item xs={3}>
 
                 </Grid>
                 <Grid item xs={6}>
                   <DashBoard />
                 </Grid>
-              </Route>
+                <Grid item xs={3}>
+                  <UserList />
+                </Grid>
+              </PrivateRoute>
             </Switch>
 
             <Switch>
-              <Route exact path="/timeline">
+              <PrivateRoute exact path="/timeline">
+                <Grid item xs={12}>
+                  <Navigation />
+                </Grid>
                 <Grid item xs={9}>
                   <TimeLine />
                 </Grid>
-              </Route>
+                <Grid item xs={3}>
+                  <UserList />
+                </Grid>
+              </PrivateRoute>
             </Switch>
-            <Grid item xs={3}>
-              <UserList />
-            </Grid>
           </Grid>
         </div>
+        <Switch>
+          <Route exact path="/auth" component={Auth} />
+        </Switch>
       </BrowserRouter>
     );
   }

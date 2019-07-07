@@ -5,12 +5,12 @@ import Divider from '@material-ui/core/Divider';
 import Input from '@material-ui/core/Input';
 import PostIcon from '@material-ui/icons/LocalPostOffice';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
 import Chip from '@material-ui/core/Chip';
 import PhotoCamera from '@material-ui/icons/CloudUpload';
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
-import Avatar from '@material-ui/core/Avatar';
+import PlusIcon from '@material-ui/icons/Add';
+import { Icon } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -22,7 +22,8 @@ const useStyles = makeStyles(theme => ({
         height: theme.spacing(4),
         textAlign: 'left',
         background: '#f5f6f7',
-        borderRadius: '4px'
+        borderRadius: '4px',
+        lineHeight:'2rem'
     },
     paper: {
         padding: theme.spacing(3, 2),
@@ -30,16 +31,16 @@ const useStyles = makeStyles(theme => ({
     },
     footer: {
         display: 'flex',
-        justifyContent:'space-around'
+        justifyContent: 'space-around'
     },
-    chip:{
-        marginTop:theme.spacing(2),
-        background:'#e9eaed',
-        fontWeight:'bold',
-        color:'#385898',
-        height:theme.spacing(5),
-        "&:hover":{
-            cursor:'pointer',
+    chip: {
+        marginTop: theme.spacing(2),
+        background: '#e9eaed',
+        fontWeight: 'bold',
+        color: '#385898',
+        height: theme.spacing(5),
+        "&:hover": {
+            cursor: 'pointer',
         }
     },
     postButton: {
@@ -59,27 +60,67 @@ const useStyles = makeStyles(theme => ({
         marginTop: theme.spacing(2),
         paddingTop: '56.25%', // 16:9
     },
+    imagePreviewBox: {
+        display: 'flex',
+        width: '100%',
+        padding: '8px 8px',
+        overflowX: 'auto'
+    },
+    imageBox: {
+        minWidth: '100px',
+        minHeight: '100px',
+        marginLeft: '10px',
+        maxWidth: '100px',
+        maxHeight: '100px',
+        "& img": {
+            width: '100%',
+            height: '100%'
+        }
+    },
+    uploadImageBox: {
+        minWidth: '100px',
+        minHeight: '100px',
+        background: '#fff',
+        border: '2px dashed #e9eaed',
+        marginLeft: '10px',
+        maxWidth: '100px',
+        maxHeight: '100px',
+        "&:hover": {
+            cursor: 'pointer',
+            background: '#e9eaed'
+        },
+        "& span svg": {
+            marginTop: '50%',
+            transform: 'translateY(-50%)'
+        }
+    },
+    divider:{
+        marginTop:'8px',
+        lineHeight:'1px'
+    }
 }));
 
 export default function PaperSheet() {
     const classes = useStyles();
     const [imagePreview, setImagePreview] = useState(null);
     const [imageName, setImageName] = useState('');
+    const [uploadedImages, setUploadedImages] = useState([])
 
     const onImageChange = (event) => {
-        // if (event.target.files && event.target.files[0]) {
-        //     setImageName(event.target.files[0].name);
-        //     let reader = new FileReader();
-        //     reader.onload = (e) => {
-        //         setImagePreview(e.target.result)
-        //     }
-        //     reader.readAsDataURL(event.target.files[0]);
-        // }
-        if (imagePreview != null) {
-            URL.revokeObjectURL(imagePreview)
+        var file = event.target.files[0];
+        var reader = new FileReader();
+        const url = reader.readAsDataURL(file);
+        reader.onloadend = (event) => {
+            setImagePreview(reader.result);
+            setImageName(file.name);
+            const imageDetails = {
+                imageSrc: reader.result,
+                name: file.name
+            }
+            const updatedImages = [...uploadedImages];
+            updatedImages.unshift(imageDetails);
+            setUploadedImages(updatedImages);
         }
-        setImageName(event.target.files[0].name);
-        setImagePreview(URL.createObjectURL(event.target.files[0]))
     }
     return (
         <div className={classes.root}>
@@ -100,7 +141,25 @@ export default function PaperSheet() {
                         title={imageName}
                     />
                 </Card> : null}
-                <Divider />
+                <Divider className={classes.divider}/>
+                {(uploadedImages.length>0) ?
+                    <div className={classes.imagePreviewBox}>
+                        {uploadedImages.map((image, index) => (
+                            <div key={index} className={classes.imageBox}>
+                                <img src={image.imageSrc} alt={image.name} />
+                            </div>
+                        ))}
+
+                        <input onChange={onImageChange} className={classes.input} id="icon-button-file" type="file" />
+                        <label htmlFor="icon-button-file">
+                            <div className={classes.uploadImageBox}>
+                                <Icon><PlusIcon /></Icon>
+                            </div>
+                        </label>
+                    </div>
+                    :
+                    null
+                }
                 <div className={classes.footer}>
                     <input onChange={onImageChange} className={classes.input} id="icon-button-file" type="file" />
                     <label htmlFor="icon-button-file">
