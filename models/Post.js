@@ -5,7 +5,7 @@ const postSchema=new Schema({
     text:{
         type:String
     },
-    image:[
+    images:[
         {
             imageUrl:{
                 type:String
@@ -30,6 +30,14 @@ const postSchema=new Schema({
             }
         }
     ],
+    tags:[
+        {
+            user:{
+                type:Schema.Types.ObjectId,
+                ref:'User'
+            }
+        }
+    ]
 })
 
 module.exports=mongoose.model('Post',postSchema);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -11,6 +12,7 @@ import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import PlusIcon from '@material-ui/icons/Add';
 import { Icon } from '@material-ui/core';
+import {connect} from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -100,14 +102,19 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function PaperSheet() {
+function CreatePost(props) {
     const classes = useStyles();
+    const [postText,setPostText] = useState('');
+    const [postFiles,setPostFiles]=useState([]);
     const [imagePreview, setImagePreview] = useState(null);
     const [imageName, setImageName] = useState('');
-    const [uploadedImages, setUploadedImages] = useState([])
+    const [uploadedImages, setUploadedImages] = useState([]);
 
     const onImageChange = (event) => {
         var file = event.target.files[0];
+        const fileArr=[...postFiles];
+        fileArr.push(file);
+        setPostFiles(fileArr);
         var reader = new FileReader();
         const url = reader.readAsDataURL(file);
         reader.onloadend = (event) => {
@@ -122,6 +129,25 @@ export default function PaperSheet() {
             setUploadedImages(updatedImages);
         }
     }
+
+    const submitPost=(e)=>{
+        e.preventDefault();
+        const {user}=props.auth;
+        let formData=new FormData();
+        formData.append('postText',postText);
+        postFiles.map(postFile=>{
+            formData.append('fileImages',postFile);
+        })
+        formData.append('userId',user.id);
+        axios.post('http://localhost:8080/submitpost',formData)
+        .then(result=>{
+            console.log(result)
+        })
+        .catch(err=>{
+            console.log(err)
+        })
+    }
+    
     return (
         <div className={classes.root}>
             <div className={classes.postHeader}>
@@ -133,6 +159,7 @@ export default function PaperSheet() {
                     multiline={true}
                     fullWidth
                     disableUnderline={true}
+                    onChange={(e)=>setPostText(e.target.value)}
                 />
                 {(imagePreview != null) ? <Card className={classes.card}>
                     <CardMedia
@@ -172,7 +199,10 @@ export default function PaperSheet() {
                         />
 
                     </label>
-                    <Button className={classes.postButton} variant="contained" color="primary">
+                    <Button
+                    disabled={(postText || postFiles.length>0)?false:true}
+                    onClick={submitPost}
+                    className={classes.postButton} variant="contained" color="primary">
                         Post<PostIcon className={classes.postIcon} />
                     </Button>
                 </div>
@@ -180,3 +210,9 @@ export default function PaperSheet() {
         </div>
     )
 }
+
+const mapStateToProps=state=>({
+    auth:state.auth
+})
+
+export default connect(mapStateToProps)(CreatePost);

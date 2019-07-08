@@ -1,9 +1,12 @@
 const express=require('express');
+const path=require('path');
 const mongoose=require('mongoose');
 const bodyParser=require('body-parser');
+const multer=require('multer');
 const app=express();
 
 const authRoute=require('./routes/auth');
+const postRoute=require('./routes/postRoute');
 
 mongoose.connect('mongodb+srv://prakhar:admin@cluster0-qejpw.mongodb.net/socialmedia',{
     useNewUrlParser:true
@@ -26,9 +29,32 @@ app.use((req, res, next) => {
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
+app.use('/images',express.static(path.join(__dirname,'images')));
+
+const fileStorage=multer.diskStorage({
+    destination:(req,file,cb)=>{
+        cb(null,'images')
+    },
+    filename:(req,file,cb)=>{
+        cb(null, Date.now()+'_'+file.originalname);
+    }
+});
+
+const filter=(req,file,cb)=>{
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg' || file.mimetype === 'image/png'){
+        cb(null,true);
+    }
+    else{
+        cb(null,false);
+    }
+}
+
+app.use(multer({storage:fileStorage,fileFilter:filter}).array('fileImages'));
 
 
+// api
 app.use(authRoute);
+app.use(postRoute);
 
 
 
