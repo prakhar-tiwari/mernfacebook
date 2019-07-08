@@ -3,7 +3,7 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import setAuthToken from '../setAuthToken';
 
-export const login = (userLogin) => dispatch => {
+export const login = (userLogin,props) => dispatch => {
    axios.post('http://localhost:8080/login', userLogin)
       .then(result => {
          if (result.data.token) {
@@ -23,4 +23,10 @@ export const setCurrentUser = (decodedToken) => {
       type: SET_AUTH_USER,
       payload: decodedToken
    }
+}
+
+export const logout=()=>dispatch=>{
+   localStorage.removeItem('token');
+   setAuthToken(false);
+   dispatch(setCurrentUser({}));
 }

@@ -19,14 +19,15 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import { Link, withRouter } from 'react-router-dom';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
+import { logout } from '../actions/authActions';
 
 const useStyles = theme => ({
     grow: {
         flexGrow: 1,
     },
-    appBar:{
-        minHeight:'50px'
+    appBar: {
+        minHeight: '50px'
     },
     menuButton: {
         marginRight: theme.spacing(2),
@@ -93,13 +94,30 @@ class Navigation extends Component {
         super();
         this.state = {
             anchorEl: null,
-            mobileMoreAnchorEl: null
+            mobileMoreAnchorEl: null,
+            userName: ''
         }
     }
+
+    componentWillReceiveProps(nextProps){
+        if(!nextProps.auth.isAuthenticated){
+            this.props.history.replace('/auth');
+        }
+    }
+
+    componentDidMount() {
+        const { isAuthenticated, user } = this.props.auth;
+        if (!isAuthenticated) {
+            this.props.history.replace('/auth');
+        }
+        else {
+            this.setState({ userName: user.name.split(" ")[0] });
+        }
+    }
+
+
     render() {
         const { classes } = this.props;
-
-        const {user} = this.props.auth;
 
         const isMenuOpen = Boolean(this.state.anchorEl);
         const isMobileMenuOpen = Boolean(this.state.mobileMoreAnchorEl);
@@ -115,6 +133,11 @@ class Navigation extends Component {
         const handleMenuClose = () => {
             this.setState({ anchorEl: null });
             handleMobileMenuClose();
+        }
+
+        const handleLogout = (e) => {
+            e.preventDefault();
+            this.props.logout();
         }
 
         const handleMobileMenuOpen = (event) => {
@@ -134,7 +157,7 @@ class Navigation extends Component {
             >
                 <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
                 <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-                <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
         );
 
@@ -153,7 +176,7 @@ class Navigation extends Component {
                     <ListItemAvatar>
                         <Avatar alt="Remy Sharp" src="images/flash.jpg" />
                     </ListItemAvatar>
-                    <ListItemText primary={user.name} />
+                    <ListItemText primary={this.state.userName} />
                 </MenuItem>
                 <MenuItem onClick={() => this.props.history.push('/')}>
                     <IconButton aria-label="Show 4 new mails" color="inherit">
@@ -216,7 +239,7 @@ class Navigation extends Component {
                                 <ListItemAvatar>
                                     <Avatar alt="Remy Sharp" src="images/flash.jpg" />
                                 </ListItemAvatar>
-                                <ListItemText primary={user.name} />
+                                <ListItemText primary={this.state.userName} />
                             </MenuItem>
                             <MenuItem onClick={() => this.props.history.push('/')}>
                                 <IconButton aria-label="Show 4 new mails" color="inherit">
@@ -266,8 +289,8 @@ class Navigation extends Component {
     }
 }
 
-const mapStateToProps=state=>({
-    auth:state.auth
+const mapStateToProps = state => ({
+    auth: state.auth
 })
 
-export default connect(mapStateToProps)(withStyles(useStyles)(withRouter(Navigation)));
+export default connect(mapStateToProps, { logout })(withStyles(useStyles)(withRouter(Navigation)));

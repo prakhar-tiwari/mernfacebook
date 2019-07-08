@@ -1,8 +1,9 @@
 import React from 'react';
+import {withRouter} from 'react-router-dom';
 import Login from './Login';
 import SignUp from './Signup';
 
-export default function Auth() {
+function Auth() {
     return (
         <div>
             <Login/>
@@ -10,3 +11,5 @@ export default function Auth() {
         </div>
     )
 }
+
+export default withRouter(Auth);

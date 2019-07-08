@@ -74,7 +74,8 @@ exports.login = (req, res, next) => {
             }
             const payload = {
                 id: authUser[0]._id,
-                name: authUser[0].name
+                name: authUser[0].name,
+                userName:authUser[0].userName
             };
 
             jwt.sign(

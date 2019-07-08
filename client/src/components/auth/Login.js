@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {connect} from 'react-redux';
 import {login} from '../../actions/authActions';
+import {withRouter} from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
     topNavBar: {
@@ -92,6 +93,16 @@ function Login(props) {
         props.login(userLogin);
     }
 
+    useEffect(()=>{
+        const {isAuthenticated} = props.auth;
+        if(isAuthenticated){
+            props.history.replace('/')
+        }
+        else{
+            props.history.replace('/auth')
+        }
+    },[props.auth.isAuthenticated])
+
     return (
         <div className={classes.topNavBar}>
             <div className={classes.menuBarContainer}>
@@ -145,4 +156,4 @@ const mapStateToProps=state=>({
     auth:state.auth
 })
 
-export default connect(mapStateToProps,{login})(Login);
+export default connect(mapStateToProps,{login})(withRouter(Login));
