@@ -13,7 +13,6 @@ import PrivateRoute from './utils/PrivateRoute';
 
 const useStyles = theme => ({
   root: {
-    textAlign: 'center',
     background: "url('/images/bgImage.png')",
     height: '100%'
   },

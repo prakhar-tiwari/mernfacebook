@@ -21,6 +21,7 @@ import Avatar from '@material-ui/core/Avatar';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '../actions/authActions';
+import SearchBox from './SearchBox';
 
 const useStyles = theme => ({
     grow: {
@@ -225,14 +226,15 @@ class Navigation extends Component {
                             <div className={classes.searchIcon}>
                                 <SearchIcon />
                             </div>
-                            <InputBase
+                            <SearchBox />
+                            {/* <InputBase
                                 placeholder="Search…"
                                 classes={{
                                     root: classes.inputRoot,
                                     input: classes.inputInput,
                                 }}
                                 inputProps={{ 'aria-label': 'Search' }}
-                            />
+                            /> */}
                         </div>
                         <div className={classes.sectionDesktop}>
                             <MenuItem onClick={() => this.props.history.push('/timeline')}>

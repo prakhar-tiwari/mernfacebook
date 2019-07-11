@@ -8,11 +8,13 @@ import PostIcon from '@material-ui/icons/LocalPostOffice';
 import Button from '@material-ui/core/Button';
 import Chip from '@material-ui/core/Chip';
 import PhotoCamera from '@material-ui/icons/CloudUpload';
+import PeopleIcon from '@material-ui/icons/PeopleTwoTone';
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import PlusIcon from '@material-ui/icons/Add';
 import { Icon } from '@material-ui/core';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
+import TagFriends from './TagFriends';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -25,7 +27,7 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'left',
         background: '#f5f6f7',
         borderRadius: '4px',
-        lineHeight:'2rem'
+        lineHeight: '2rem'
     },
     paper: {
         padding: theme.spacing(3, 2),
@@ -46,7 +48,7 @@ const useStyles = makeStyles(theme => ({
         }
     },
     postButton: {
-        width: '70%',
+        width: '50%',
         marginTop: theme.spacing(2)
     },
     postIcon: {
@@ -61,6 +63,7 @@ const useStyles = makeStyles(theme => ({
     media: {
         marginTop: theme.spacing(2),
         paddingTop: '56.25%', // 16:9
+        backgroundPosition:'initial'
     },
     imagePreviewBox: {
         display: 'flex',
@@ -93,26 +96,33 @@ const useStyles = makeStyles(theme => ({
         },
         "& span svg": {
             marginTop: '50%',
-            transform: 'translateY(-50%)'
+            marginLeft:'50%',
+            transform: 'translate(-50%,-50%)'
         }
     },
-    divider:{
-        marginTop:'8px',
+    firstDivider:{
+        marginTop:'24px',
         lineHeight:'1px'
+    },
+    secondDivider: {
+        marginTop: '8px',
+        lineHeight: '1px'
     }
 }));
 
 function CreatePost(props) {
     const classes = useStyles();
-    const [postText,setPostText] = useState('');
-    const [postFiles,setPostFiles]=useState([]);
+    const [postText, setPostText] = useState('');
+    const [postFiles, setPostFiles] = useState([]);
     const [imagePreview, setImagePreview] = useState(null);
     const [imageName, setImageName] = useState('');
     const [uploadedImages, setUploadedImages] = useState([]);
+    const [tagFriends, setTagFriends] = useState(false);
+    const [taggedFriends,setTaggedFriends]=useState([]);
 
     const onImageChange = (event) => {
         var file = event.target.files[0];
-        const fileArr=[...postFiles];
+        const fileArr = [...postFiles];
         fileArr.push(file);
         setPostFiles(fileArr);
         var reader = new FileReader();
@@ -130,24 +140,36 @@ function CreatePost(props) {
         }
     }
 
-    const submitPost=(e)=>{
+    const submitPost = (e) => {
         e.preventDefault();
-        const {user}=props.auth;
-        let formData=new FormData();
-        formData.append('postText',postText);
-        postFiles.map(postFile=>{
-            formData.append('fileImages',postFile);
+        const { user } = props.auth;
+        const taggedFIds=(taggedFriends)?taggedFriends.map(tFriend=> tFriend.id):null;
+        let formData = new FormData();
+        formData.append('postText', postText);
+        postFiles.map(postFile => {
+            formData.append('fileImages', postFile);
         })
-        formData.append('userId',user.id);
-        axios.post('http://localhost:8080/submitpost',formData)
-        .then(result=>{
-            console.log(result)
-        })
-        .catch(err=>{
-            console.log(err)
-        })
+        formData.append('userId', user.id);
+        formData.append('taggedFriends',JSON.stringify(taggedFIds));
+        axios.post('http://localhost:8080/submitpost', formData)
+            .then(result => {
+                console.log(result);
+                setImagePreview(null);
+                setPostFiles([]);
+                setPostText('');
+                setTagFriends(false);
+                setTaggedFriends([]);
+                setImageName('');
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
-    
+
+    const handleTagging=(selectedFriends)=>{
+        setTaggedFriends(selectedFriends);
+    }
+
     return (
         <div className={classes.root}>
             <div className={classes.postHeader}>
@@ -159,7 +181,7 @@ function CreatePost(props) {
                     multiline={true}
                     fullWidth
                     disableUnderline={true}
-                    onChange={(e)=>setPostText(e.target.value)}
+                    onChange={(e) => setPostText(e.target.value)}
                 />
                 {(imagePreview != null) ? <Card className={classes.card}>
                     <CardMedia
@@ -168,8 +190,13 @@ function CreatePost(props) {
                         title={imageName}
                     />
                 </Card> : null}
-                <Divider className={classes.divider}/>
-                {(uploadedImages.length>0) ?
+
+                {(tagFriends)?<Divider className={classes.firstDivider} />:null}
+
+                {(tagFriends)?<TagFriends taggedFriends={handleTagging}/>:null}
+                
+                <Divider className={classes.secondDivider} />
+                {(uploadedImages.length > 0) ?
                     <div className={classes.imagePreviewBox}>
                         {uploadedImages.map((image, index) => (
                             <div key={index} className={classes.imageBox}>
@@ -199,10 +226,19 @@ function CreatePost(props) {
                         />
 
                     </label>
+                    <label onClick={() => setTagFriends(!tagFriends)} htmlFor="">
+                    <Chip
+                        icon={<PeopleIcon />}
+                        label="Tag Friends"
+                        color="primary"
+                        className={classes.chip}
+                        
+                    />
+                    </label>
                     <Button
-                    disabled={(postText || postFiles.length>0)?false:true}
-                    onClick={submitPost}
-                    className={classes.postButton} variant="contained" color="primary">
+                        disabled={(postText || postFiles.length > 0) ? false : true}
+                        onClick={submitPost}
+                        className={classes.postButton} variant="contained" color="primary">
                         Post<PostIcon className={classes.postIcon} />
                     </Button>
                 </div>
@@ -211,8 +247,8 @@ function CreatePost(props) {
     )
 }
 
-const mapStateToProps=state=>({
-    auth:state.auth
+const mapStateToProps = state => ({
+    auth: state.auth
 })
 
 export default connect(mapStateToProps)(CreatePost);

@@ -7,6 +7,7 @@ const app=express();
 
 const authRoute=require('./routes/auth');
 const postRoute=require('./routes/postRoute');
+const profileRoute=require('./routes/profileRoute');
 
 mongoose.connect('mongodb+srv://prakhar:admin@cluster0-qejpw.mongodb.net/socialmedia',{
     useNewUrlParser:true
@@ -55,6 +56,7 @@ app.use(multer({storage:fileStorage,fileFilter:filter}).array('fileImages'));
 // api
 app.use(authRoute);
 app.use(postRoute);
+app.use(profileRoute);
 
 
 
