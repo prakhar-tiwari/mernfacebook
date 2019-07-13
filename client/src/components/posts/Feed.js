@@ -14,7 +14,8 @@ import Typography from '@material-ui/core/Typography';
 import Comments from './comments/Comments';
 import CreateComment from './comments/CreateComment';
 import { connect } from 'react-redux';
-import axios from 'axios'
+import axios from 'axios';
+import { getFeed,likePost } from '../../actions/postActions';
 
 const useStyles = theme => ({
     root: {
@@ -81,37 +82,25 @@ const useStyles = theme => ({
 })
 
 class Feed extends Component {
-    constructor() {
-        super();
-        this.state = {
-            allPosts: []
-        }
-    }
-
-    componentWillUpdate(nextState){
-        if(nextState.allPosts !== this.state.allPosts){
-            console.log("updated")
-        }
-    }
 
     componentDidMount() {
         const { id } = this.props.auth.user;
-        axios.post('http://localhost:8080/getfeed', { userId: id })
-            .then(result => {
-                this.setState({ allPosts: result.data });
-            })
-            .catch(err => {
-                console.log(err)
-            })
+        this.props.getFeed(id);
+    }
+
+    handleLike=(postId)=>{
+        const { id } = this.props.auth.user;
+        this.props.likePost(postId,id);
     }
 
 
     render() {
         const { classes } = this.props;
+        const { allPosts } = this.props.post;
         return (
             <div>
                 {
-                    (this.state.allPosts.length > 0) ? this.state.allPosts.map(post => (
+                    (allPosts) ? allPosts.map(post => (
                         <Paper key={post._id} className={classes.root}>
                             <List className={classes.list}>
                                 <ListItem alignItems="flex-start">
@@ -126,11 +115,11 @@ class Feed extends Component {
                             <SinglePost post={post} />
                             <div className={classes.actionsResult}>
                                 <Typography className={classes.actionsResultItem}><LikeIcon className={classes.actionIcons} color="primary" /></Typography>
-                                <Typography className={classes.actionsResultItem}>{(post.like.count>0)?post.like.count:0}</Typography>
+                                <Typography className={classes.actionsResultItem}>{(post.like.length > 0) ? post.like.length : 0}</Typography>
                             </div>
                             <hr className={classes.divider} />
                             <div className={classes.actionsList}>
-                                <Typography className={classes.actionItems}><LikeIcon className={classes.actionIcons} color="primary" />Like</Typography>
+                                <Typography onClick={()=>this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={classes.actionIcons} color="primary" />Like</Typography>
                                 <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} color="secondary" />Comment</Typography>
                                 <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} color="primary" />Share</Typography>
                             </div>
@@ -153,7 +142,8 @@ class Feed extends Component {
 }
 
 const mapStateToProps = state => ({
-    auth: state.auth
+    auth: state.auth,
+    post: state.post
 })
 
-export default connect(mapStateToProps)(withStyles(useStyles)(Feed));
+export default connect(mapStateToProps, { getFeed,likePost })(withStyles(useStyles)(Feed));

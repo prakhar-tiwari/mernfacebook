@@ -15,6 +15,7 @@ import PlusIcon from '@material-ui/icons/Add';
 import { Icon } from '@material-ui/core';
 import { connect } from 'react-redux';
 import TagFriends from './TagFriends';
+import { submitPost } from '../../actions/postActions';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -153,20 +154,14 @@ function CreatePost(props) {
         })
         formData.append('userId', user.id);
         formData.append('taggedFriends', JSON.stringify(taggedFIds));
-        axios.post('http://localhost:8080/submitpost', formData)
-            .then(result => {
-                console.log(result);
-                setImagePreview(null);
-                setPostFiles([]);
-                setPostText('');
-                setTagFriends(false);
-                setTaggedFriends([]);
-                setImageName('');
-                setUploadedImages([]);
-            })
-            .catch(err => {
-                console.log(err)
-            })
+        props.submitPost(formData);
+        setImagePreview(null);
+        setPostFiles([]);
+        setPostText('');
+        setTagFriends(false);
+        setTaggedFriends([]);
+        setImageName('');
+        setUploadedImages([]);
     }
 
     const handleTagging = (selectedFriends) => {
@@ -185,6 +180,7 @@ function CreatePost(props) {
                     fullWidth
                     disableUnderline={true}
                     onChange={(e) => setPostText(e.target.value)}
+                    value={postText}
                 />
                 {(imagePreview != null) ? <Card className={classes.card}>
                     <CardMedia
@@ -251,7 +247,8 @@ function CreatePost(props) {
 }
 
 const mapStateToProps = state => ({
-    auth: state.auth
+    auth: state.auth,
+    post: state.post
 })
 
-export default connect(mapStateToProps)(CreatePost);
+export default connect(mapStateToProps, { submitPost })(CreatePost);

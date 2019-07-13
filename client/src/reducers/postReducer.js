@@ -1,15 +1,21 @@
-import {SET_TAGGED_FRIENDS} from '../actions/Types';
+import {GET_FEED,SUBMIT_POST} from '../actions/Types';
 
 const initialState={
-    taggedFriends:[]
+    allPosts:[]
 }
 
 const postReducer=(state=initialState,action)=>{
     switch(action.type){
-        case SET_TAGGED_FRIENDS:
+        case GET_FEED:
             return{
                 ...state,
-                taggedFriends:action.payload
+                allPosts:action.payload
+            }
+
+        case SUBMIT_POST:
+            return{
+                ...state,
+                allPosts:[action.payload,...state.allPosts]
             }
 
         default:

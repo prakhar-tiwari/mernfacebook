@@ -10,5 +10,7 @@ Router.post('/getpost',postController.getPost);
 
 Router.post('/submitpost',postController.submitPost);
 
+Router.post('/likepost',postController.likePost);
+
 
 module.exports=Router;

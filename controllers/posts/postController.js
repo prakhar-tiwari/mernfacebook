@@ -1,48 +1,48 @@
 const Post = require('../../models/Post');
-const Profile=require('../../models/Profile');
+const Profile = require('../../models/Profile');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 
 exports.getFeed = (req, res, next) => {
     const { userId } = req.body;
-    let userPosts=[];
-    Post.find({'createdBy':ObjectId(userId)})
-    .populate({
-        path:'createdBy',
-        select:'name'
-    })
-    .populate({
-        path:'tags',
-        select:'name'
-    })
-    .then(posts=>{
-        userPosts=posts;
-        return Profile.find({'user':ObjectId(userId)})
-    })
-    .then(profile=>{
-        const profileIds=profile[0].friends.map(friend=> friend.user)
-        return Post.find({
-            'createdBy':{
-                $in:profileIds
-            }
+    let userPosts = [];
+    Post.find({ 'createdBy': ObjectId(userId) })
+        .populate({
+            path: 'createdBy',
+            select: 'name'
         })
         .populate({
-            path:'createdBy',
-            select:'name'
+            path: 'tags',
+            select: 'name'
         })
-        .populate({
-            path:'tags',
-            select:'name'
+        .then(posts => {
+            userPosts = posts;
+            return Profile.find({ 'user': ObjectId(userId) })
         })
-    })
-    .then(friendsPosts=>{
-        const postFeed=userPosts.concat(friendsPosts);
-        return res.status(200).json(postFeed);
-    })
-    .catch(err=>{
-        console.log(err)
-        return res.status(500).json(err);
-    })
+        .then(profile => {
+            const profileIds = profile[0].friends.map(friend => friend.user)
+            return Post.find({
+                'createdBy': {
+                    $in: profileIds
+                }
+            })
+                .populate({
+                    path: 'createdBy',
+                    select: 'name'
+                })
+                .populate({
+                    path: 'tags',
+                    select: 'name'
+                })
+        })
+        .then(friendsPosts => {
+            const postFeed = userPosts.concat(friendsPosts);
+            return res.status(200).json(postFeed);
+        })
+        .catch(err => {
+            console.log(err)
+            return res.status(500).json(err);
+        })
 }
 
 exports.getAllPosts = (req, res, next) => {
@@ -93,12 +93,41 @@ exports.submitPost = (req, res, next) => {
     }
 
     Post.create(newPost)
+        .then(savedPost => {
+            return Post.findById(savedPost._id).populate({
+                path: 'createdBy',
+                select: 'name'
+            })
+                .populate({
+                    path: 'tags',
+                    select: 'name'
+                })
+        })
         .then(result => {
-            return res.status(200).json({ message: 'Post created successfully' });
+            return res.status(200).json(result)
         })
         .catch(err => {
             console.log(err)
             return res.status(500).json(err);
         })
 
+}
+
+exports.likePost = (req, res, next) => {
+    const { postId,userId } = req.body;
+    Post.findById(postId)
+    .then(post=>{
+        if(post.like.filter(like=> like == userId).length>0){
+            return res.status(400).json({message:'user already liked the post'})
+        }
+        post.like.unshift(userId);
+        return post.save()
+    })
+    .then(like=>{
+        return res.status(200).json(like);
+    })
+    .catch(err=>{
+        console.log(err)
+        return res.status(200).json(err);
+    })
 }
