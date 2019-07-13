@@ -63,7 +63,7 @@ const useStyles = makeStyles(theme => ({
     media: {
         marginTop: theme.spacing(2),
         paddingTop: '56.25%', // 16:9
-        backgroundPosition:'initial'
+        backgroundPosition: 'initial'
     },
     imagePreviewBox: {
         display: 'flex',
@@ -96,13 +96,13 @@ const useStyles = makeStyles(theme => ({
         },
         "& span svg": {
             marginTop: '50%',
-            marginLeft:'50%',
+            marginLeft: '50%',
             transform: 'translate(-50%,-50%)'
         }
     },
-    firstDivider:{
-        marginTop:'24px',
-        lineHeight:'1px'
+    firstDivider: {
+        marginTop: '24px',
+        lineHeight: '1px'
     },
     secondDivider: {
         marginTop: '8px',
@@ -118,39 +118,41 @@ function CreatePost(props) {
     const [imageName, setImageName] = useState('');
     const [uploadedImages, setUploadedImages] = useState([]);
     const [tagFriends, setTagFriends] = useState(false);
-    const [taggedFriends,setTaggedFriends]=useState([]);
+    const [taggedFriends, setTaggedFriends] = useState([]);
 
     const onImageChange = (event) => {
         var file = event.target.files[0];
-        const fileArr = [...postFiles];
-        fileArr.push(file);
-        setPostFiles(fileArr);
-        var reader = new FileReader();
-        const url = reader.readAsDataURL(file);
-        reader.onloadend = (event) => {
-            setImagePreview(reader.result);
-            setImageName(file.name);
-            const imageDetails = {
-                imageSrc: reader.result,
-                name: file.name
+        if (file) {
+            const fileArr = [...postFiles];
+            fileArr.push(file);
+            setPostFiles(fileArr);
+            var reader = new FileReader();
+            const url = reader.readAsDataURL(file);
+            reader.onloadend = (event) => {
+                setImagePreview(reader.result);
+                setImageName(file.name);
+                const imageDetails = {
+                    imageSrc: reader.result,
+                    name: file.name
+                }
+                const updatedImages = [...uploadedImages];
+                updatedImages.unshift(imageDetails);
+                setUploadedImages(updatedImages);
             }
-            const updatedImages = [...uploadedImages];
-            updatedImages.unshift(imageDetails);
-            setUploadedImages(updatedImages);
         }
     }
 
     const submitPost = (e) => {
         e.preventDefault();
         const { user } = props.auth;
-        const taggedFIds=(taggedFriends)?taggedFriends.map(tFriend=> tFriend.id):null;
+        const taggedFIds = (taggedFriends) ? taggedFriends.map(tFriend => tFriend.id) : null;
         let formData = new FormData();
         formData.append('postText', postText);
         postFiles.map(postFile => {
             formData.append('fileImages', postFile);
         })
         formData.append('userId', user.id);
-        formData.append('taggedFriends',JSON.stringify(taggedFIds));
+        formData.append('taggedFriends', JSON.stringify(taggedFIds));
         axios.post('http://localhost:8080/submitpost', formData)
             .then(result => {
                 console.log(result);
@@ -160,13 +162,14 @@ function CreatePost(props) {
                 setTagFriends(false);
                 setTaggedFriends([]);
                 setImageName('');
+                setUploadedImages([]);
             })
             .catch(err => {
                 console.log(err)
             })
     }
 
-    const handleTagging=(selectedFriends)=>{
+    const handleTagging = (selectedFriends) => {
         setTaggedFriends(selectedFriends);
     }
 
@@ -191,10 +194,10 @@ function CreatePost(props) {
                     />
                 </Card> : null}
 
-                {(tagFriends)?<Divider className={classes.firstDivider} />:null}
+                {(tagFriends) ? <Divider className={classes.firstDivider} /> : null}
 
-                {(tagFriends)?<TagFriends taggedFriends={handleTagging}/>:null}
-                
+                {(tagFriends) ? <TagFriends taggedFriends={handleTagging} /> : null}
+
                 <Divider className={classes.secondDivider} />
                 {(uploadedImages.length > 0) ?
                     <div className={classes.imagePreviewBox}>
@@ -227,13 +230,13 @@ function CreatePost(props) {
 
                     </label>
                     <label onClick={() => setTagFriends(!tagFriends)} htmlFor="">
-                    <Chip
-                        icon={<PeopleIcon />}
-                        label="Tag Friends"
-                        color="primary"
-                        className={classes.chip}
-                        
-                    />
+                        <Chip
+                            icon={<PeopleIcon />}
+                            label="Tag Friends"
+                            color="primary"
+                            className={classes.chip}
+
+                        />
                     </label>
                     <Button
                         disabled={(postText || postFiles.length > 0) ? false : true}

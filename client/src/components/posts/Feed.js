@@ -13,7 +13,8 @@ import ShareIcon from '@material-ui/icons/Share';
 import Typography from '@material-ui/core/Typography';
 import Comments from './comments/Comments';
 import CreateComment from './comments/CreateComment';
-import Divider from '@material-ui/core/Divider';
+import { connect } from 'react-redux';
+import axios from 'axios'
 
 const useStyles = theme => ({
     root: {
@@ -80,6 +81,29 @@ const useStyles = theme => ({
 })
 
 class Feed extends Component {
+    constrcutor(){
+        this.state={
+            ownPosts:[],
+            friendsPosts:[]
+        }
+    }
+
+    componentDidMount(){
+        const {id}=this.props.auth.user;
+        axios.post('http://localhost:8080/getfeed',{userId:id})
+        .then(result=>{
+            console.log(result.data)
+            const ownPosts=[...result.data];
+            ownPosts.map(post=> delete post.friendsposts);
+            console.log(ownPosts)
+
+        })
+        .catch(err=>{
+            console.log(err)
+        })
+    }
+
+
     render() {
         const { classes } = this.props;
         return (
@@ -121,4 +145,8 @@ class Feed extends Component {
     }
 }
 
-export default withStyles(useStyles)(Feed);
+const mapStateToProps=state=>({
+    auth:state.auth
+})
+
+export default connect(mapStateToProps)(withStyles(useStyles)(Feed));
