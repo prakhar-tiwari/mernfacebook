@@ -33,13 +33,13 @@ const useStyles = theme => ({
     post: {
         width: '100%'
     },
-    actionsResult:{
+    actionsResult: {
         padding: theme.spacing(1, 0),
         display: 'flex',
         maxWidth: '100%',
         backgroundColor: theme.palette.background.paper,
     },
-    actionsResultItem:{
+    actionsResultItem: {
         justifyContent: 'center',
         alignItems: 'center',
         textAlign: 'center',
@@ -64,14 +64,14 @@ const useStyles = theme => ({
     actionIcons: {
         margin: theme.spacing(-0.5, 0.5),
     },
-    commentSection:{
-        marginTop:theme.spacing(1)
+    commentSection: {
+        marginTop: theme.spacing(1)
     },
-    createComment:{
-        marginTop:theme.spacing(2)
+    createComment: {
+        marginTop: theme.spacing(2)
     },
-    comments:{
-        marginTop:theme.spacing(1)
+    comments: {
+        marginTop: theme.spacing(1)
     },
     divider: {
         borderBottom: '1px solid #ddd',
@@ -81,26 +81,28 @@ const useStyles = theme => ({
 })
 
 class Feed extends Component {
-    constrcutor(){
-        this.state={
-            ownPosts:[],
-            friendsPosts:[]
+    constructor() {
+        super();
+        this.state = {
+            allPosts: []
         }
     }
 
-    componentDidMount(){
-        const {id}=this.props.auth.user;
-        axios.post('http://localhost:8080/getfeed',{userId:id})
-        .then(result=>{
-            console.log(result.data)
-            const ownPosts=[...result.data];
-            ownPosts.map(post=> delete post.friendsposts);
-            console.log(ownPosts)
+    componentWillUpdate(nextState){
+        if(nextState.allPosts !== this.state.allPosts){
+            console.log("updated")
+        }
+    }
 
-        })
-        .catch(err=>{
-            console.log(err)
-        })
+    componentDidMount() {
+        const { id } = this.props.auth.user;
+        axios.post('http://localhost:8080/getfeed', { userId: id })
+            .then(result => {
+                this.setState({ allPosts: result.data });
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
 
 
@@ -108,45 +110,50 @@ class Feed extends Component {
         const { classes } = this.props;
         return (
             <div>
-                <Paper className={classes.root}>
-                    <List className={classes.list}>
-                        <ListItem alignItems="flex-start">
-                            <ListItemAvatar>
-                                <Avatar alt="Remy Sharp" src="images/flash.jpg" />
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary="The Flash"
-                            />
-                        </ListItem >
-                    </List>
-                    <SinglePost />
-                    <div className={classes.actionsResult}>
-                    <Typography className={classes.actionsResultItem}><LikeIcon className={classes.actionIcons} color="primary" /></Typography>
-                    <Typography className={classes.actionsResultItem}>240</Typography>
-                    </div>
-                    <hr className={classes.divider}/>
-                    <div className={classes.actionsList}>
-                        <Typography className={classes.actionItems}><LikeIcon className={classes.actionIcons} color="primary" />Like</Typography>
-                        <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} color="secondary" />Comment</Typography>
-                        <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} color="primary" />Share</Typography>
-                    </div>
-                    <hr className={classes.divider}/>
-                    <div className={classes.commentSection}>
-                        <div className={classes.createComment}>
-                            <CreateComment />
-                        </div>
-                        <div className={classes.comments}>
-                            <Comments />
-                        </div>
-                    </div>
-                </Paper>
+                {
+                    (this.state.allPosts.length > 0) ? this.state.allPosts.map(post => (
+                        <Paper key={post._id} className={classes.root}>
+                            <List className={classes.list}>
+                                <ListItem alignItems="flex-start">
+                                    <ListItemAvatar>
+                                        <Avatar alt="Remy Sharp" src="images/flash.jpg" />
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        primary={post.createdBy.name}
+                                    />
+                                </ListItem >
+                            </List>
+                            <SinglePost post={post} />
+                            <div className={classes.actionsResult}>
+                                <Typography className={classes.actionsResultItem}><LikeIcon className={classes.actionIcons} color="primary" /></Typography>
+                                <Typography className={classes.actionsResultItem}>{(post.like.count>0)?post.like.count:0}</Typography>
+                            </div>
+                            <hr className={classes.divider} />
+                            <div className={classes.actionsList}>
+                                <Typography className={classes.actionItems}><LikeIcon className={classes.actionIcons} color="primary" />Like</Typography>
+                                <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} color="secondary" />Comment</Typography>
+                                <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} color="primary" />Share</Typography>
+                            </div>
+                            <hr className={classes.divider} />
+                            <div className={classes.commentSection}>
+                                <div className={classes.createComment}>
+                                    <CreateComment />
+                                </div>
+                                <div className={classes.comments}>
+                                    <Comments />
+                                </div>
+                            </div>
+                        </Paper>
+                    )) :
+                        null
+                }
             </div>
         )
     }
 }
 
-const mapStateToProps=state=>({
-    auth:state.auth
+const mapStateToProps = state => ({
+    auth: state.auth
 })
 
 export default connect(mapStateToProps)(withStyles(useStyles)(Feed));

@@ -1,69 +1,46 @@
 const Post = require('../../models/Post');
+const Profile=require('../../models/Profile');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 
 exports.getFeed = (req, res, next) => {
     const { userId } = req.body;
-    Post.aggregate([
-        {
-            $match:{
-                createdBy:ObjectId(userId)
+    let userPosts=[];
+    Post.find({'createdBy':ObjectId(userId)})
+    .populate({
+        path:'createdBy',
+        select:'name'
+    })
+    .populate({
+        path:'tags',
+        select:'name'
+    })
+    .then(posts=>{
+        userPosts=posts;
+        return Profile.find({'user':ObjectId(userId)})
+    })
+    .then(profile=>{
+        const profileIds=profile[0].friends.map(friend=> friend.user)
+        return Post.find({
+            'createdBy':{
+                $in:profileIds
             }
-        },
-        {
-            $lookup:{
-                from:'profiles',
-                localField:'createdBy',
-                foreignField:'user',
-                as:'profile'
-            }
-        },
-        {
-            $unwind:'$profile'
-        },
-        {
-            $group:{
-                _id:'$_id',
-                text:{$first:'$text'},
-                images:{$first:'$images'},
-                tags:{$first:'$tags'},
-                createdBy:{$first:'$createdBy'},
-                createdDate:{$first:'$createdDate'},
-                like:{$first:'$like'},
-                friends:{$first:'$profile.friends'}
-            }
-        },
-        {
-            $unwind:'$friends'
-        },
-        {
-           $lookup:{
-               from:'posts',
-               localField:'friends.user',
-               foreignField:'createdBy',
-               as:'posts'
-           }
-        },
-        {
-            $unwind:'$posts'
-        },
-        {
-            $group:{
-                _id:'$_id',
-                text:{$first:'$text'},
-                images:{$first:'$images'},
-                tags:{$first:'$tags'},
-                createdDate:{$first:'$createdDate'},
-                like:{$first:'$like'},
-                friendsposts:{$push:'$posts'}
-            }
-        }
-    ])
-    .then(result=>{
-        return res.status(200).json(result);
+        })
+        .populate({
+            path:'createdBy',
+            select:'name'
+        })
+        .populate({
+            path:'tags',
+            select:'name'
+        })
+    })
+    .then(friendsPosts=>{
+        const postFeed=userPosts.concat(friendsPosts);
+        return res.status(200).json(postFeed);
     })
     .catch(err=>{
-        console.log(err);
+        console.log(err)
         return res.status(500).json(err);
     })
 }
