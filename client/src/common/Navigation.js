@@ -119,6 +119,7 @@ class Navigation extends Component {
 
     render() {
         const { classes } = this.props;
+        const {user} = this.props.auth;
 
         const isMenuOpen = Boolean(this.state.anchorEl);
         const isMobileMenuOpen = Boolean(this.state.mobileMoreAnchorEl);
@@ -175,7 +176,7 @@ class Navigation extends Component {
             >
                 <MenuItem onClick={() => this.props.history.push('/timeline')}>
                     <ListItemAvatar>
-                        <Avatar alt="Remy Sharp" src="images/flash.jpg" />
+                        <Avatar alt="Remy Sharp" src={user.profileImage} />
                     </ListItemAvatar>
                     <ListItemText primary={this.state.userName} />
                 </MenuItem>
@@ -227,19 +228,11 @@ class Navigation extends Component {
                                 <SearchIcon />
                             </div>
                             <SearchBox />
-                            {/* <InputBase
-                                placeholder="Search…"
-                                classes={{
-                                    root: classes.inputRoot,
-                                    input: classes.inputInput,
-                                }}
-                                inputProps={{ 'aria-label': 'Search' }}
-                            /> */}
                         </div>
                         <div className={classes.sectionDesktop}>
                             <MenuItem onClick={() => this.props.history.push('/timeline')}>
                                 <ListItemAvatar>
-                                    <Avatar alt="Remy Sharp" src="images/flash.jpg" />
+                                    <Avatar alt="Remy Sharp" src={user.profileImage} />
                                 </ListItemAvatar>
                                 <ListItemText primary={this.state.userName} />
                             </MenuItem>

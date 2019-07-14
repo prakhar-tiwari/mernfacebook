@@ -6,6 +6,9 @@ const profileSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
+    profileImage:{
+        type:String
+    },
     friends: [
         {
             user: {

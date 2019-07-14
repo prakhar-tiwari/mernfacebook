@@ -9,30 +9,30 @@ exports.getFeed = (req, res, next) => {
     Post.find({ 'createdBy': ObjectId(userId) })
         .populate({
             path: 'createdBy',
-            select: 'name'
+            select: 'name userName profileImage'
         })
         .populate({
             path: 'tags',
-            select: 'name'
+            select: 'name userName profileImage'
         })
         .then(posts => {
             userPosts = posts;
             return Profile.find({ 'user': ObjectId(userId) })
         })
         .then(profile => {
-            const profileIds = profile[0].friends.map(friend => friend.user)
+            const profileIds = profile[0].friends.map(friend => friend.user);
             return Post.find({
                 'createdBy': {
                     $in: profileIds
-                }
-            })
+                  },
+                })
                 .populate({
                     path: 'createdBy',
-                    select: 'name'
+                    select: 'name userName profileImage'
                 })
                 .populate({
                     path: 'tags',
-                    select: 'name'
+                    select: 'name userName profileImage'
                 })
         })
         .then(friendsPosts => {
@@ -50,7 +50,7 @@ exports.getAllPosts = (req, res, next) => {
     Post.find({ 'user': userId })
         .populate({
             path: 'createdBy',
-            select: 'name'
+            select: 'name userName'
         })
         .then(result => {
             return res.status(200).json(result);
@@ -96,11 +96,11 @@ exports.submitPost = (req, res, next) => {
         .then(savedPost => {
             return Post.findById(savedPost._id).populate({
                 path: 'createdBy',
-                select: 'name'
+                select: 'name userName profileImage'
             })
                 .populate({
                     path: 'tags',
-                    select: 'name'
+                    select: 'name userName profileImage'
                 })
         })
         .then(result => {
@@ -114,20 +114,20 @@ exports.submitPost = (req, res, next) => {
 }
 
 exports.likePost = (req, res, next) => {
-    const { postId,userId } = req.body;
+    const { postId, userId } = req.body;
     Post.findById(postId)
-    .then(post=>{
-        if(post.like.filter(like=> like == userId).length>0){
-            return res.status(400).json({message:'user already liked the post'})
-        }
-        post.like.unshift(userId);
-        return post.save()
-    })
-    .then(like=>{
-        return res.status(200).json(like);
-    })
-    .catch(err=>{
-        console.log(err)
-        return res.status(200).json(err);
-    })
+        .then(post => {
+            if (post.like.filter(like => like == userId).length > 0) {
+                return res.status(400).json({ message: 'user already liked the post' })
+            }
+            post.like.unshift(userId);
+            return post.save()
+        })
+        .then(like => {
+            return res.status(200).json(like);
+        })
+        .catch(err => {
+            console.log(err)
+            return res.status(200).json(err);
+        })
 }

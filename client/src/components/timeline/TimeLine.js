@@ -8,9 +8,10 @@ import FriendGrid from './friends/FriendGrid';
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import CheckIcon from '@material-ui/icons/Check';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import {connect} from 'react-redux';
+import CameraIcon from '@material-ui/icons/Camera';
+import Icon from '@material-ui/core/Icon';
+import { connect } from 'react-redux';
+import axios from 'axios';
 
 const useStyles = theme => ({
     timeline: {
@@ -43,6 +44,27 @@ const useStyles = theme => ({
             background: '#fff',
             zIndex: 100
         }
+    },
+    uploadPhotoDiv: {
+        bottom: '10px',
+        left: '5px',
+        overflow: 'hidden',
+        width: '200px',
+        position: 'absolute',
+    },
+    updatePhoto: {
+        background: 'linear-gradient( transparent, rgba(0, 0, 0, .6) 0%, rgba(0, 0, 0, .6) 100% )',
+        width: '100%',
+        borderBottomLeftRadius: '90px',
+        borderBottomRightRadius: '90px',
+        height: '90px',
+        textAlign: 'center',
+        color: '#fff',
+        cursor: 'pointer',
+        transition:'0.3s'
+    },
+    uploadImageInput:{
+        display:'none'
     },
     timeLineNav: {
         paddingLeft: '30%',
@@ -107,7 +129,7 @@ const useStyles = theme => ({
         }
     },
     otherActions: {
-        marginLeft: theme.spacing(2),
+        marginLeft: theme.spacing(1),
         display: 'flex'
     },
     typography: {
@@ -159,7 +181,8 @@ class TimeLine extends Component {
             isFriend: false,
             isFollowing: false,
             anchorE1: null,
-            anchorE2: null
+            anchorE2: null,
+            isUpload:false
         }
     }
 
@@ -184,9 +207,25 @@ class TimeLine extends Component {
         this.setState({ anchorE2: null, anchorE1: null })
     }
 
+    uploadProfilePhoto=(event)=>{
+        const { user } = this.props.auth;
+        const image=event.target.files[0];
+        const formData=new FormData();
+        formData.append('userId',user.id);
+        formData.append('fileImages',image);
+        axios.post('uploadphoto',formData)
+        .then(result=>{
+            console.log(result);
+        })
+        .catch(err=>{
+            console.log(err);
+        })
+
+    }
+
     render() {
         const { classes } = this.props;
-        const {user} = this.props.auth;
+        const { user } = this.props.auth;
 
         var openFriend = Boolean(this.state.anchorE1);
         var openFollow = Boolean(this.state.anchorE2);
@@ -197,11 +236,24 @@ class TimeLine extends Component {
                     <div className={classes.coverPhoto} >
                         <img src="images/batman.jpg" />
                     </div>
-                    <div className={classes.profilePicture} >
-                        <a href="#" >
+                    <div onMouseEnter={()=>this.setState({isUpload:true})}
+                        onMouseLeave={()=>this.setState({isUpload:false})} className={classes.profilePicture} >
+                        <a 
+                        href="#" >
                             <img src="images/flash.jpg"
                                 alt="Prakhar Tiwari" />
                         </a>
+                        {(this.state.isUpload)?<div className={classes.uploadPhotoDiv}>
+                            <input onChange={this.uploadProfilePhoto} className={classes.uploadImageInput} id="icon-button-file" type="file" />
+                            <label htmlFor="icon-button-file">
+                                <div className={classes.updatePhoto}>
+                                    <div className={classes.cameraIcon}>
+                                        <Icon><CameraIcon /></Icon>
+                                    </div>
+                                    Upload
+                            </div>
+                            </label>
+                        </div>:null}
                     </div>
                     <div className={classes.timeLineNav} >
                         <div className={classes.actionContainer} >
@@ -331,8 +383,8 @@ class TimeLine extends Component {
     }
 }
 
-const mapStateToProps=state=>({
-    auth:state.auth
+const mapStateToProps = state => ({
+    auth: state.auth
 })
 
 export default connect(mapStateToProps)(withStyles(useStyles)(TimeLine));

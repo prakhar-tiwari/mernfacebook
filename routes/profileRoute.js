@@ -6,4 +6,6 @@ Router.post('/getallusers',profileController.getAllUsers);
 
 Router.post('/getfriends',profileController.getFriends);
 
+Router.post('/uploadphoto',profileController.uploadPhoto);
+
 module.exports=Router;

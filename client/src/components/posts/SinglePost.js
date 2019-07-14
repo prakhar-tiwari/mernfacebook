@@ -91,7 +91,7 @@ export default function SinglePost(props) {
         imageUrls = images.map(image => {
             return {
                 _id: image._id,
-                imageUrl: "http://localhost:8080/" + image.imageUrl.replace("\\", "/"),
+                imageUrl: image.imageUrl.replace("\\", "/"),
                 featured: true
             }
         });
@@ -100,7 +100,7 @@ export default function SinglePost(props) {
         imageUrls = images.map(image => {
             return {
                 _id: image._id,
-                imageUrl: "http://localhost:8080/" + image.imageUrl.replace("\\", "/"),
+                imageUrl: image.imageUrl.replace("\\", "/"),
                 featured: false
             }
         });

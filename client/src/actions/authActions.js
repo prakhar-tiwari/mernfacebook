@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import setAuthToken from '../setAuthToken';
 
 export const login = (userLogin,props) => dispatch => {
-   axios.post('http://localhost:8080/login', userLogin)
+   axios.post('login', userLogin)
       .then(result => {
          if (result.data.token) {
             localStorage.setItem('token', result.data.token);

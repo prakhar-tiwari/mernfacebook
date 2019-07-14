@@ -80,7 +80,8 @@ exports.login = (req, res, next) => {
             const payload = {
                 id: authUser[0]._id,
                 name: authUser[0].name,
-                userName:authUser[0].userName
+                userName:authUser[0].userName,
+                profileImage:authUser[0].profileImage,
             };
 
             jwt.sign(
