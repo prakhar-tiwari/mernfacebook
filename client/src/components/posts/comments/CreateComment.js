@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import Input from '@material-ui/core/Input';
+import {connect} from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
     commentSection: {
@@ -17,13 +18,14 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function CreateComment() {
+function CreateComment(props) {
     const classes = useStyles();
+    const {user}=props.auth;
     return (
         <div className={classes.commentSection}>
             <div>
                 <ListItemAvatar>
-                    <Avatar alt="Remy Sharp" src="images/flash.jpg" />
+                    <Avatar alt="Remy Sharp" src={'/'+user.profileImage} />
                 </ListItemAvatar>
             </div>
             <div className={classes.commentBox}>
@@ -36,3 +38,9 @@ export default function CreateComment() {
         </div>
     )
 }
+
+const mapStateToProps=state=>({
+    auth:state.auth
+})
+
+export default connect(mapStateToProps)(CreateComment);

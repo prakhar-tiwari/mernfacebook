@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
-import { Link } from 'react-router-dom';
+import { Link,withRouter } from 'react-router-dom';
 import axios from 'axios';
 import {connect} from 'react-redux';
 
@@ -39,18 +39,7 @@ const useStyles = makeStyles(theme => ({
 })
 );
 
-const suggestions = [
-    { label: 'Afghanistan' },
-    { label: 'Aland Islands' },
-    { label: 'Albania' },
-    { label: 'Algeria' },
-    { label: 'American Samoa' },
-    { label: 'Andorra' },
-    { label: 'Angola' },
-    { label: 'Anguilla' },
-    { label: 'Antarctica' },
-    { label: 'Antigua and Barbuda' },
-];
+
 
 function SearchBox(props) {
     const classes = useStyles();
@@ -65,7 +54,7 @@ function SearchBox(props) {
 
     const searchFriends=(e)=>{
         const postData={searchText:e.target.value};
-        axios.post('http://localhost:8080/getallusers',postData)
+        axios.post('/getallusers',postData)
         .then(result=>{
             setFriends(result.data);
         })
@@ -75,7 +64,9 @@ function SearchBox(props) {
     }
 
     let searchedFriends = (friends)?friends.map((search, index) => (
-        <Link to="/timeline" key={index}>
+        <Link to={{
+            pathname:'/timeline/'+search.userName
+        }} key={index}>
             {search.name}
         </Link>
     )):null
@@ -106,4 +97,4 @@ const mapStateToProps=state=>({
     auth:state.auth
 })
 
-export default connect(mapStateToProps)(SearchBox);
+export default connect(mapStateToProps)(withRouter(SearchBox));

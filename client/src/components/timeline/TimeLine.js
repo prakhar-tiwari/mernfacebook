@@ -11,6 +11,8 @@ import Typography from '@material-ui/core/Typography';
 import CameraIcon from '@material-ui/icons/Camera';
 import Icon from '@material-ui/core/Icon';
 import { connect } from 'react-redux';
+import { uploadPhoto } from '../../actions/profileActions';
+import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 
 const useStyles = theme => ({
@@ -61,10 +63,10 @@ const useStyles = theme => ({
         textAlign: 'center',
         color: '#fff',
         cursor: 'pointer',
-        transition:'0.3s'
+        transition: '0.3s'
     },
-    uploadImageInput:{
-        display:'none'
+    uploadImageInput: {
+        display: 'none'
     },
     timeLineNav: {
         paddingLeft: '30%',
@@ -112,7 +114,7 @@ const useStyles = theme => ({
         marginTop: theme.spacing(2)
     },
     actionContainer: {
-        width: '100%',
+        width: '50%',
         position: 'absolute'
     },
     interactingActions: {
@@ -120,7 +122,7 @@ const useStyles = theme => ({
         display: 'flex',
         padding: '0px 12px',
         bottom: '20px',
-        left: '20%',
+        left: '30%',
         "& div a": {
             padding: '4px 16px',
             background: '#e9eaed',
@@ -182,9 +184,75 @@ class TimeLine extends Component {
             isFollowing: false,
             anchorE1: null,
             anchorE2: null,
-            isUpload:false
+            isUpload: false,
+            timeLineUser: [],
+            authUser:true
         }
     }
+
+    componentDidUpdate(prevProps) {
+        const { isAuthenticated, user } = this.props.auth;
+        if (isAuthenticated != prevProps.auth.isAuthenticated) {
+            if (!this.props.auth.isAuthenticated) {
+                this.props.history.replace('/auth');
+            }
+        }
+        else {
+            if (prevProps.match.params.userName != this.props.match.params.userName) {
+                const userName = this.props.match.params.userName;
+                axios.get('/getuser/' + userName)
+                    .then(result => {
+                        const timeLineUser={
+                            _id:result.data[0]._id,
+                            name:result.data[0].name,
+                            userName:result.data[0].userName,
+                            profileImage:result.data[0].profileImage,
+                        }
+                        this.setState({ timeLineUser: timeLineUser });
+                        if(timeLineUser.userName === user.userName){
+                            this.setState({authUser:true})
+                        }
+                        else{
+                            this.setState({authUser:false})
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+            }
+        }
+    }
+
+    componentDidMount() {
+        const { isAuthenticated, user } = this.props.auth;
+        if (!isAuthenticated) {
+            this.props.history.replace('/auth');
+        }
+        else {
+            const userName = this.props.match.params.userName;
+            axios.get('/getuser/' + userName)
+                .then(result => {
+                    const timeLineUser={
+                        _id:result.data[0]._id,
+                        name:result.data[0].name,
+                        userName:result.data[0].userName,
+                        profileImage:result.data[0].profileImage,
+                    }
+                    this.setState({ timeLineUser: timeLineUser });
+                    if(timeLineUser.userName === user.userName){
+                        this.setState({authUser:true})
+                    }
+                    else{
+                        this.setState({authUser:false})
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+        }
+
+    }
+
 
     handleFriendPopper = (event) => {
         this.setState({
@@ -207,19 +275,13 @@ class TimeLine extends Component {
         this.setState({ anchorE2: null, anchorE1: null })
     }
 
-    uploadProfilePhoto=(event)=>{
+    uploadProfilePhoto = (event) => {
         const { user } = this.props.auth;
-        const image=event.target.files[0];
-        const formData=new FormData();
-        formData.append('userId',user.id);
-        formData.append('fileImages',image);
-        axios.post('uploadphoto',formData)
-        .then(result=>{
-            console.log(result);
-        })
-        .catch(err=>{
-            console.log(err);
-        })
+        const image = event.target.files[0];
+        const formData = new FormData();
+        formData.append('userId', user.id);
+        formData.append('fileImages', image);
+        this.props.uploadPhoto(formData)
 
     }
 
@@ -230,20 +292,21 @@ class TimeLine extends Component {
         var openFriend = Boolean(this.state.anchorE1);
         var openFollow = Boolean(this.state.anchorE2);
 
+        const { timeLineUser } = this.state;
+
         return (
             <div className={classes.timeline} >
                 <div className={classes.timeLineCover} >
                     <div className={classes.coverPhoto} >
-                        <img src="images/batman.jpg" />
+                        <img src="/images/batman.jpg" />
                     </div>
-                    <div onMouseEnter={()=>this.setState({isUpload:true})}
-                        onMouseLeave={()=>this.setState({isUpload:false})} className={classes.profilePicture} >
-                        <a 
-                        href="#" >
-                            <img src="images/flash.jpg"
-                                alt="Prakhar Tiwari" />
+                    <div onMouseEnter={() => this.setState({ isUpload: true })}
+                        onMouseLeave={() => this.setState({ isUpload: false })} className={classes.profilePicture} >
+                        <a
+                            href="#" >
+                            {(timeLineUser.profileImage) ? <img src={'/'+timeLineUser.profileImage} /> : <img src="/images/blank.png" />}
                         </a>
-                        {(this.state.isUpload)?<div className={classes.uploadPhotoDiv}>
+                        {(this.state.authUser && this.state.isUpload) ? <div className={classes.uploadPhotoDiv}>
                             <input onChange={this.uploadProfilePhoto} className={classes.uploadImageInput} id="icon-button-file" type="file" />
                             <label htmlFor="icon-button-file">
                                 <div className={classes.updatePhoto}>
@@ -253,9 +316,10 @@ class TimeLine extends Component {
                                     Upload
                             </div>
                             </label>
-                        </div>:null}
+                        </div> : null}
                     </div>
                     <div className={classes.timeLineNav} >
+                        {(!this.state.authUser)?
                         <div className={classes.actionContainer} >
                             <div className={classes.interactingActions} >
                                 <div > {
@@ -335,7 +399,8 @@ class TimeLine extends Component {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>:
+                        null}
                         <ul className={classes.navList} >
                             <li> < a href="#"
                                 className={classes.listItem} > TimeLine </a></li >
@@ -359,11 +424,9 @@ class TimeLine extends Component {
                                 <div className={classes.userAbout} >
                                     <UserAbout />
                                 </div> <div className={classes.photoGrid} >
-                                    <
-                                        PhotoGrid />
+                                    <PhotoGrid />
                                 </div> <div className={classes.friendGrid} >
-                                    <
-                                        FriendGrid />
+                                    <FriendGrid />
                                 </div>
 
                             </div>
@@ -387,4 +450,4 @@ const mapStateToProps = state => ({
     auth: state.auth
 })
 
-export default connect(mapStateToProps)(withStyles(useStyles)(TimeLine));
+export default connect(mapStateToProps, { uploadPhoto })(withStyles(useStyles)(withRouter(TimeLine)));

@@ -9,6 +9,7 @@ import thunk from 'redux-thunk';
 import jwt from 'jsonwebtoken';
 import authReducer from './reducers/authReducer';
 import postReducer from './reducers/postReducer';
+import profileReducer from './reducers/profileReducer';
 import { setCurrentUser, logout } from './actions/authActions';
 
 
@@ -16,7 +17,8 @@ const middleware = [thunk];
 
 const rootReducer = combineReducers({
     auth: authReducer,
-    post: postReducer
+    post: postReducer,
+    profile: profileReducer
 })
 
 const initialState = {}

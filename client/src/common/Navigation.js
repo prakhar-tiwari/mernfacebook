@@ -100,9 +100,11 @@ class Navigation extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps){
-        if(!nextProps.auth.isAuthenticated){
-            this.props.history.replace('/auth');
+    componentWillReceiveProps(nextProps) {
+        if (this.props.auth.isAuthenticated != nextProps.auth.isAuthenticated) {
+            if (!nextProps.auth.isAuthenticated) {
+                this.props.history.replace('/auth');
+            }
         }
     }
 
@@ -119,7 +121,7 @@ class Navigation extends Component {
 
     render() {
         const { classes } = this.props;
-        const {user} = this.props.auth;
+        const { user } = this.props.auth;
 
         const isMenuOpen = Boolean(this.state.anchorEl);
         const isMobileMenuOpen = Boolean(this.state.mobileMoreAnchorEl);
@@ -174,9 +176,14 @@ class Navigation extends Component {
                 open={isMobileMenuOpen}
                 onClose={handleMobileMenuClose}
             >
-                <MenuItem onClick={() => this.props.history.push('/timeline')}>
+                <MenuItem onClick={() => this.props.history.push({
+                    pathname: '/timeline/' + user.userName,
+                    state: {
+                        user: user
+                    }
+                })}>
                     <ListItemAvatar>
-                        <Avatar alt="Remy Sharp" src={user.profileImage} />
+                        <Avatar alt="Remy Sharp" src={'/'+user.profileImage} />
                     </ListItemAvatar>
                     <ListItemText primary={this.state.userName} />
                 </MenuItem>
@@ -230,9 +237,14 @@ class Navigation extends Component {
                             <SearchBox />
                         </div>
                         <div className={classes.sectionDesktop}>
-                            <MenuItem onClick={() => this.props.history.push('/timeline')}>
+                            <MenuItem onClick={() => this.props.history.push({
+                                pathname: '/timeline/' + user.userName,
+                                state: {
+                                    user: user
+                                }
+                            })}>
                                 <ListItemAvatar>
-                                    <Avatar alt="Remy Sharp" src={user.profileImage} />
+                                    <Avatar alt="Remy Sharp" src={'/'+user.profileImage} />
                                 </ListItemAvatar>
                                 <ListItemText primary={this.state.userName} />
                             </MenuItem>

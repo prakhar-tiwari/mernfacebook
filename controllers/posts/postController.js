@@ -12,7 +12,7 @@ exports.getFeed = (req, res, next) => {
             select: 'name userName profileImage'
         })
         .populate({
-            path: 'tags',
+            path: 'tags.user',
             select: 'name userName profileImage'
         })
         .then(posts => {
@@ -31,7 +31,7 @@ exports.getFeed = (req, res, next) => {
                     select: 'name userName profileImage'
                 })
                 .populate({
-                    path: 'tags',
+                    path: 'tags.user',
                     select: 'name userName profileImage'
                 })
         })
@@ -74,7 +74,11 @@ exports.getPost = (req, res, next) => {
 exports.submitPost = (req, res, next) => {
     const { postText, userId, taggedFriends } = req.body;
     let tFriend = JSON.parse(taggedFriends);
-    tFriend = tFriend.map(id => ObjectId(id));
+    tFriend = tFriend.map(id => {
+        return {
+            user:ObjectId(id)
+        }
+    });
     const images = req.files;
     if (!images) {
         return res.status(400).json({ message: 'Attached file is not a valid image' })
@@ -99,7 +103,7 @@ exports.submitPost = (req, res, next) => {
                 select: 'name userName profileImage'
             })
                 .populate({
-                    path: 'tags',
+                    path: 'tags.user',
                     select: 'name userName profileImage'
                 })
         })
@@ -117,10 +121,12 @@ exports.likePost = (req, res, next) => {
     const { postId, userId } = req.body;
     Post.findById(postId)
         .then(post => {
-            if (post.like.filter(like => like == userId).length > 0) {
+            if (post.like.filter(like => like.user == userId).length > 0) {
                 return res.status(400).json({ message: 'user already liked the post' })
             }
-            post.like.unshift(userId);
+            post.like.unshift({
+                user:ObjectId(userId)
+            });
             return post.save()
         })
         .then(like => {

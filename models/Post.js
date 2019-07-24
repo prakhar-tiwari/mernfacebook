@@ -24,14 +24,18 @@ const postSchema = new Schema({
     },
     like: [
         {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
+            user: {
+                type: Schema.Types.ObjectId,
+                ref: 'User'
+            }
         }
     ],
     tags: [
         {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
+            user: {
+                type: Schema.Types.ObjectId,
+                ref: 'User'
+            }
         }
     ]
 })

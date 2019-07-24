@@ -44,7 +44,7 @@ class App extends Component {
             </Switch>
 
             <Switch>
-              <PrivateRoute exact path="/timeline">
+              <PrivateRoute exact path="/timeline/:userName">
                 <Grid item xs={12}>
                   <Navigation />
                 </Grid>

@@ -76,6 +76,7 @@ export default function SinglePost(props) {
     const tagsCount = tags.length - 1;
     const otherTags = tags.slice(1);
 
+
     function onPhotoClick(image) {
         setOpenPhoto(true);
         setImageDetails(image);
@@ -111,7 +112,7 @@ export default function SinglePost(props) {
         <div className={classes.postDescription}>
             <Typography component="div" style={{ textAlign: 'left' }}>
                 <p>{post.text}</p>
-                {(tags.length>0)?<p>- with <a href="#">{tags[0].name}</a> and <a onClick={handleTagPopper}>{tagsCount} others</a></p>:null}
+                {(tags.length===1)?<p>- with <a href="#">{tags[0].user.name}</a></p>:(tags.length>1)?<p>- with <a href="#">{tags[0].user.name}</a> and <a onClick={handleTagPopper}>{tagsCount} others</a></p>:null}
                 <Popper className={classes.popperElement}
                     anchorEl={anchorE1}
                     open={openTag}
@@ -131,7 +132,7 @@ export default function SinglePost(props) {
                     <div className={classes.popperContent} >
                         <div className={classes.arrowTag} > </div>
                         {otherTags.map(oTag => (
-                            <Typography key={oTag._id} className={classes.typography} > {oTag.name} </Typography>)
+                            <Typography key={oTag.user._id} className={classes.typography} > {oTag.user.name} </Typography>)
                         )}
                     </div>
                 </Popper>

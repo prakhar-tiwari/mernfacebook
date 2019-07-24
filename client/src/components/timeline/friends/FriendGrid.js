@@ -65,7 +65,7 @@ export default function FriendGrid() {
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
                         {tileData.map(tile => (
                             <GridListTile key={tile.img} cols={tile.cols || 1}>
-                                <img src={tile.img} alt={tile.title} />
+                                <img src={'/'+tile.img} alt={tile.title} />
                                 <GridListTileBar
                                     title={tile.title}
                                 />

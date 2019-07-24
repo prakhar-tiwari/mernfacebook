@@ -2,7 +2,7 @@ import {GET_FEED,SUBMIT_POST} from './Types';
 import axios from 'axios';
 ;
 export const getFeed=(id)=>dispatch=>{
-    axios.post('getfeed', { userId: id })
+    axios.post('/getfeed', { userId: id })
     .then(result => {
         dispatch({
             type:GET_FEED,
@@ -15,7 +15,7 @@ export const getFeed=(id)=>dispatch=>{
 }
 
 export const submitPost=(newPost)=>dispatch=>{
-    axios.post('submitpost', newPost)
+    axios.post('/submitpost', newPost)
     .then(result => {
         dispatch({
             type:SUBMIT_POST,
@@ -28,7 +28,7 @@ export const submitPost=(newPost)=>dispatch=>{
 }
 
 export const likePost=(postId,id)=>dispatch=>{
-    axios.post('likepost',{
+    axios.post('/likepost',{
         postId:postId,
         userId:id
     })
