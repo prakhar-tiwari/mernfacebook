@@ -13,7 +13,19 @@ import Icon from '@material-ui/core/Icon';
 import { connect } from 'react-redux';
 import { uploadPhoto } from '../../actions/profileActions';
 import { withRouter } from 'react-router-dom';
-import axios from 'axios';
+import { setTimeLineUser } from '../../actions/profileActions';
+import SinglePost from '../posts/SinglePost';
+import CommentIcon from '@material-ui/icons/Comment';
+import LikeIcon from '@material-ui/icons/ThumbUp';
+import ShareIcon from '@material-ui/icons/Share';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import Avatar from '@material-ui/core/Avatar';
+import CreateComment from '../posts/comments/CreateComment';
+import Comments from '../posts/comments/Comments';
+import {likePost} from '../../actions/postActions';
 
 const useStyles = theme => ({
     timeline: {
@@ -173,6 +185,75 @@ const useStyles = theme => ({
         borderBottom: '1px solid #ddd',
         margin: '5px 7px 6px',
         paddingTop: '1px'
+    },
+    postItems: {
+        marginTop: theme.spacing(5),
+        display: 'block',
+        width: '80%'
+    },
+    list: {
+        width: '100%',
+        maxWidth: 360,
+        backgroundColor: theme.palette.background.paper,
+    },
+    inline: {
+        display: 'inline',
+    },
+    post: {
+        width: '100%'
+    },
+    actionsResult: {
+        padding: theme.spacing(1, 0),
+        display: 'flex',
+        maxWidth: '100%',
+        backgroundColor: theme.palette.background.paper,
+    },
+    actionsResultItem: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: 0,
+    },
+    actionsList: {
+        padding: theme.spacing(1, 2),
+        display: 'flex',
+        maxWidth: '100%',
+        backgroundColor: theme.palette.background.paper,
+        justifyContent: 'space-around'
+    },
+    actionItems: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: theme.spacing(0, 2),
+        '&:hover': {
+            cursor: 'pointer'
+        }
+    },
+    actionIcons: {
+        margin: theme.spacing(-0.5, 0.5),
+        color: '#385898',
+    },
+    takeAction: {
+        margin: theme.spacing(-0.5, 0.5),
+        color: '#e9eaed'
+    },
+    likeResultIcon: {
+        margin: theme.spacing(-0.5, 0.5),
+    },
+    commentSection: {
+        marginTop: theme.spacing(1)
+    },
+    createComment: {
+        marginTop: theme.spacing(2)
+    },
+    comments: {
+        marginTop: theme.spacing(1)
+    },
+    divider: {
+        borderBottom: '1px solid #ddd',
+        margin: '5px 7px 6px',
+        paddingTop: '1px'
     }
 });
 
@@ -185,8 +266,7 @@ class TimeLine extends Component {
             anchorE1: null,
             anchorE2: null,
             isUpload: false,
-            timeLineUser: [],
-            authUser:true
+            authUser: true
         }
     }
 
@@ -200,25 +280,7 @@ class TimeLine extends Component {
         else {
             if (prevProps.match.params.userName != this.props.match.params.userName) {
                 const userName = this.props.match.params.userName;
-                axios.get('/getuser/' + userName)
-                    .then(result => {
-                        const timeLineUser={
-                            _id:result.data[0]._id,
-                            name:result.data[0].name,
-                            userName:result.data[0].userName,
-                            profileImage:result.data[0].profileImage,
-                        }
-                        this.setState({ timeLineUser: timeLineUser });
-                        if(timeLineUser.userName === user.userName){
-                            this.setState({authUser:true})
-                        }
-                        else{
-                            this.setState({authUser:false})
-                        }
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
+                this.props.setTimeLineUser(userName, user.userName);
             }
         }
     }
@@ -230,25 +292,7 @@ class TimeLine extends Component {
         }
         else {
             const userName = this.props.match.params.userName;
-            axios.get('/getuser/' + userName)
-                .then(result => {
-                    const timeLineUser={
-                        _id:result.data[0]._id,
-                        name:result.data[0].name,
-                        userName:result.data[0].userName,
-                        profileImage:result.data[0].profileImage,
-                    }
-                    this.setState({ timeLineUser: timeLineUser });
-                    if(timeLineUser.userName === user.userName){
-                        this.setState({authUser:true})
-                    }
-                    else{
-                        this.setState({authUser:false})
-                    }
-                })
-                .catch(err => {
-                    console.log(err)
-                })
+            this.props.setTimeLineUser(userName, user.userName);
         }
 
     }
@@ -281,8 +325,13 @@ class TimeLine extends Component {
         const formData = new FormData();
         formData.append('userId', user.id);
         formData.append('fileImages', image);
-        this.props.uploadPhoto(formData)
+        this.props.uploadPhoto(formData, user.userName)
 
+    }
+
+    handleLike = (postId) => {
+        const { id } = this.props.auth.user;
+        this.props.likePost(postId, id);
     }
 
     render() {
@@ -292,7 +341,8 @@ class TimeLine extends Component {
         var openFriend = Boolean(this.state.anchorE1);
         var openFollow = Boolean(this.state.anchorE2);
 
-        const { timeLineUser } = this.state;
+        const { timeLineUser } = this.props.profile;
+        const  {timeLinePosts}  = this.props.post;
 
         return (
             <div className={classes.timeline} >
@@ -304,9 +354,9 @@ class TimeLine extends Component {
                         onMouseLeave={() => this.setState({ isUpload: false })} className={classes.profilePicture} >
                         <a
                             href="#" >
-                            {(timeLineUser.profileImage) ? <img src={'/'+timeLineUser.profileImage} /> : <img src="/images/blank.png" />}
+                            {(timeLineUser.profileImage) ? <img src={'/' + timeLineUser.profileImage} /> : <img src="/images/blank.png" />}
                         </a>
-                        {(this.state.authUser && this.state.isUpload) ? <div className={classes.uploadPhotoDiv}>
+                        {(timeLineUser.authUser && this.state.isUpload) ? <div className={classes.uploadPhotoDiv}>
                             <input onChange={this.uploadProfilePhoto} className={classes.uploadImageInput} id="icon-button-file" type="file" />
                             <label htmlFor="icon-button-file">
                                 <div className={classes.updatePhoto}>
@@ -319,56 +369,20 @@ class TimeLine extends Component {
                         </div> : null}
                     </div>
                     <div className={classes.timeLineNav} >
-                        {(!this.state.authUser)?
-                        <div className={classes.actionContainer} >
-                            <div className={classes.interactingActions} >
-                                <div > {
-                                    (this.state.isFriend) ?
-                                        <a onClick={this.handleFriendPopper}
-                                            variant="contained"
-                                            color="default" > Friends </a> : <a variant="contained"
-                                                color="default" > Add Friend </a>
-                                }
-                                    <Popper className={classes.popperElement}
-                                        anchorEl={this.state.anchorE1}
-                                        open={openFriend}
-                                        placement='bottom-start'
-                                        disablePortal={true}
-                                        modifiers={
-                                            {
-                                                flip: {
-                                                    enabled: false,
-                                                },
-                                                preventOverflow: {
-                                                    enabled: false,
-                                                    boundariesElement: 'scrollParent',
-                                                },
-                                            }
-                                        } >
-                                        <Paper className={classes.popperContent} >
-                                            <div className={classes.arrowFriend} > </div>
-                                            <Typography className={classes.typography} > Get Notifications </Typography>
-                                            <hr className={classes.divider} />
-                                            <Typography className={classes.typography} > Close Friends </Typography>
-                                            <hr className={classes.divider} />
-                                            <Typography className={classes.typography} > Unfriend </Typography>
-                                        </Paper>
-                                    </Popper>
-                                </div>
-                                <div className={classes.otherActions} >
-                                    <div> {
-                                        (this.state.isFollowing) ?
-                                            <a onClick={this.handleFollowPopper}
+                        {(!timeLineUser.authUser) ?
+                            <div className={classes.actionContainer} >
+                                <div className={classes.interactingActions} >
+                                    <div > {
+                                        (this.state.isFriend) ?
+                                            <a onClick={this.handleFriendPopper}
                                                 variant="contained"
-                                                color="default" > Following </a> :
-                                            <a variant="contained"
-                                                color="default" > Follow </a>
+                                                color="default" > Friends </a> : <a variant="contained"
+                                                    color="default" > Add Friend </a>
                                     }
-
                                         <Popper className={classes.popperElement}
-                                            anchorEl={this.state.anchorE2}
-                                            open={openFollow}
-                                            placement='bottom-end'
+                                            anchorEl={this.state.anchorE1}
+                                            open={openFriend}
+                                            placement='bottom-start'
                                             disablePortal={true}
                                             modifiers={
                                                 {
@@ -382,25 +396,61 @@ class TimeLine extends Component {
                                                 }
                                             } >
                                             <Paper className={classes.popperContent} >
-                                                <div className={classes.arrowFollow} > </div>
-                                                <Typography className={classes.typography} > See First </Typography>
+                                                <div className={classes.arrowFriend} > </div>
+                                                <Typography className={classes.typography} > Get Notifications </Typography>
                                                 <hr className={classes.divider} />
-                                                <Typography className={classes.typography} > Default </Typography>
+                                                <Typography className={classes.typography} > Close Friends </Typography>
                                                 <hr className={classes.divider} />
-                                                <Typography className={classes.typography} > Unfollow </Typography>
+                                                <Typography className={classes.typography} > Unfriend </Typography>
                                             </Paper>
                                         </Popper>
                                     </div>
-                                    <div>
-                                        <a variant="contained"
-                                            color="default" > Message </a>
-                                        <a variant="contained"
-                                            color="default" > ... </a>
+                                    <div className={classes.otherActions} >
+                                        <div> {
+                                            (this.state.isFollowing) ?
+                                                <a onClick={this.handleFollowPopper}
+                                                    variant="contained"
+                                                    color="default" > Following </a> :
+                                                <a variant="contained"
+                                                    color="default" > Follow </a>
+                                        }
+
+                                            <Popper className={classes.popperElement}
+                                                anchorEl={this.state.anchorE2}
+                                                open={openFollow}
+                                                placement='bottom-end'
+                                                disablePortal={true}
+                                                modifiers={
+                                                    {
+                                                        flip: {
+                                                            enabled: false,
+                                                        },
+                                                        preventOverflow: {
+                                                            enabled: false,
+                                                            boundariesElement: 'scrollParent',
+                                                        },
+                                                    }
+                                                } >
+                                                <Paper className={classes.popperContent} >
+                                                    <div className={classes.arrowFollow} > </div>
+                                                    <Typography className={classes.typography} > See First </Typography>
+                                                    <hr className={classes.divider} />
+                                                    <Typography className={classes.typography} > Default </Typography>
+                                                    <hr className={classes.divider} />
+                                                    <Typography className={classes.typography} > Unfollow </Typography>
+                                                </Paper>
+                                            </Popper>
+                                        </div>
+                                        <div>
+                                            <a variant="contained"
+                                                color="default" > Message </a>
+                                            <a variant="contained"
+                                                color="default" > ... </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>:
-                        null}
+                            </div> :
+                            null}
                         <ul className={classes.navList} >
                             <li> < a href="#"
                                 className={classes.listItem} > TimeLine </a></li >
@@ -437,6 +487,41 @@ class TimeLine extends Component {
                                 <div className={classes.CreatePost} >
                                     <CreatePost />
                                 </div>
+                                {timeLinePosts? timeLinePosts.map(post=>(
+                                    <Paper key={post._id} className={classes.postItems}>
+                                    <List className={classes.list}>
+                                        <ListItem alignItems="flex-start">
+                                            <ListItemAvatar>
+                                                <Avatar alt="Remy Sharp" src={'/'+post.profileImage} />
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary={post.createdBy}
+                                            />
+                                        </ListItem >
+                                    </List>
+                                    <SinglePost post={post}/>
+                                    <div className={classes.actionsResult}>
+                                    <Typography className={classes.actionsResultItem}><LikeIcon className={classes.likeResultIcon} color="primary" /></Typography>
+                                        <Typography className={classes.actionsResultItem}>{(post.like.length > 0) ? post.like.length : 0}</Typography>
+                                    </div>
+                                    <hr className={classes.divider} />
+                                    <div className={classes.actionsList}>
+                                    <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.includes({user:user.id})?classes.actionIcons:classes.takeAction} />Like</Typography>
+                                        <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
+                                        <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
+                                    </div>
+                                    <hr className={classes.divider} />
+                                    <div className={classes.commentSection}>
+                                        <div className={classes.createComment}>
+                                            <CreateComment />
+                                        </div>
+                                        <div className={classes.comments}>
+                                            <Comments />
+                                        </div>
+                                    </div>
+                                </Paper>
+                                )):null}
+                                
                             </div>
                         </Grid>
                     </Grid>
@@ -447,7 +532,9 @@ class TimeLine extends Component {
 }
 
 const mapStateToProps = state => ({
-    auth: state.auth
+    auth: state.auth,
+    post: state.post,
+    profile: state.profile
 })
 
-export default connect(mapStateToProps, { uploadPhoto })(withStyles(useStyles)(withRouter(TimeLine)));
+export default connect(mapStateToProps, { uploadPhoto, setTimeLineUser,likePost })(withStyles(useStyles)(withRouter(TimeLine)));

@@ -1,21 +1,28 @@
-import {GET_FEED,SUBMIT_POST} from '../actions/Types';
+import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED } from '../actions/Types';
 
-const initialState={
-    allPosts:[]
+const initialState = {
+    allPosts: [],
+    timeLinePosts: []
 }
 
-const postReducer=(state=initialState,action)=>{
-    switch(action.type){
+const postReducer = (state = initialState, action) => {
+    switch (action.type) {
         case GET_FEED:
-            return{
+            return {
                 ...state,
-                allPosts:action.payload
+                allPosts: action.payload
             }
 
         case SUBMIT_POST:
-            return{
+            return {
                 ...state,
-                allPosts:[action.payload,...state.allPosts]
+                allPosts: [action.payload, ...state.allPosts]
+            }
+
+        case GET_TIMELINE_FEED:
+            return {
+                ...state,
+                timeLinePosts: action.payload
             }
 
         default:

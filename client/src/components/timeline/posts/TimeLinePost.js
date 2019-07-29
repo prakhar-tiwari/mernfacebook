@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
-import Photo from '../timeline/photos/Photo';
+import Photo from '../photos/Photo';
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 
@@ -63,7 +63,7 @@ const useStyles = makeStyles(theme => ({
 })
 )
 
-function SinglePost(props) {
+export default function TimeLinePost(props) {
     const classes = useStyles();
 
     const [openPhoto, setOpenPhoto] = React.useState(false);
@@ -75,6 +75,10 @@ function SinglePost(props) {
     const tags = post.tags;
     const tagsCount = tags.length - 1;
     const otherTags = tags.slice(1);
+
+    tags.map(t=>{
+        console.log(t)
+    })
 
 
     function onPhotoClick(image) {
@@ -152,5 +156,3 @@ function SinglePost(props) {
         </div>
     )
 }
-
-export default SinglePost;

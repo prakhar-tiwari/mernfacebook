@@ -20,15 +20,50 @@ exports.getUser = (req, res, next) => {
             }
         },
         {
-            $lookup: {
+            $lookup: {                  // finding posts created by current user
                 from: 'posts',
-                localField: '_id',
-                foreignField: 'createdBy',
+                let: { id: '$_id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ['$createdBy', '$$id']
+                            }
+                        },
+                    },
+                    {
+                        $lookup: {                               // populating tagged users
+                            from: 'users',
+                            let: { user: '$tags.user' },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $in: ['$_id', '$$user']
+                                        }
+                                    },
+                                },
+                                {                               // grouping required parameters of users
+                                    $group: {
+                                        _id: '$_id',
+                                        'user': {$first:{
+                                            name: '$name',
+                                            userName: '$userName',
+                                            profileImage: '$profileImage'
+                                        }
+                                        }
+                                    }
+                                }
+                            ],
+                            as: 'tags'
+                        }
+                    }
+                ],
                 as: 'posts'
             }
         },
         {
-            $lookup: {
+            $lookup: {                                  // finding user's friends
                 from: 'profiles',
                 let: { id: '$_id' },
                 pipeline: [
@@ -40,7 +75,7 @@ exports.getUser = (req, res, next) => {
                         }
                     },
                     {
-                        $unwind: '$friends'
+                        $unwind: '$friends'          // unwinding as it gave array of array, we need only friends array
                     }
                 ],
                 as: 'profile'
@@ -53,11 +88,11 @@ exports.getUser = (req, res, next) => {
                 userName: { $first: '$userName' },
                 profileImage: { $first: '$profileImage' },
                 posts: { $first: '$posts' },
-                friends: { $first: '$profile.friends' }
+                friends: { $first: '$profile.friends' }     // grouping user's friends from profile
             }
         },
         {
-            $lookup: {
+            $lookup: {                                      // populating user's friends with required parameters
                 from: 'users',
                 let: { user: '$friends.user' },
                 pipeline: [
@@ -71,7 +106,8 @@ exports.getUser = (req, res, next) => {
                     {
                         $project: {
                             name: 1,
-                            userName: 1
+                            userName: 1,
+                            profileImage: 1
                         }
                     }
                 ],
@@ -98,10 +134,37 @@ exports.getUser = (req, res, next) => {
                         }
                     },
                     {
-                        $match: {
-                                'tags':{$elemMatch:{user:ObjectId("5d21dcd23785d83d948e32c7")}}
+                        $match: {  // filtering out posts in which only current user is tagged
+                            'tags': { $elemMatch: { user: ObjectId("5d21dcd23785d83d948e32c7") } }
                         }
                     },
+                    {
+                        $lookup: {         // populating tagged users
+                            from: 'users',
+                            let: { user: '$tags.user' },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $in: ['$_id', '$$user']
+                                        }
+                                    },
+                                },
+                                {                               // grouping required parameters of users
+                                    $group: {
+                                        _id: '$_id',
+                                        'user': {$first:{
+                                            name: '$name',
+                                            userName: '$userName',
+                                            profileImage: '$profileImage'
+                                        }
+                                        }
+                                    }
+                                }
+                            ],
+                            as: 'tags'
+                        }
+                    }
                 ],
                 as: 'friends.posts'
             }
