@@ -25,7 +25,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import CreateComment from '../posts/comments/CreateComment';
 import Comments from '../posts/comments/Comments';
-import {likePost} from '../../actions/postActions';
+import { likePost } from '../../actions/postActions';
 
 const useStyles = theme => ({
     timeline: {
@@ -342,7 +342,13 @@ class TimeLine extends Component {
         var openFollow = Boolean(this.state.anchorE2);
 
         const { timeLineUser } = this.props.profile;
-        const  {timeLinePosts}  = this.props.post;
+        const { allPosts } = this.props.post;
+        const { friends } = this.props.profile;
+
+        const friendAction=['Friends','Friend Request Sent','Add Friend'];
+        if(!timeLineUser.authUser && friends.length>0){
+            const friendStatus=friends.find(friend=> friend.userName === user.userName).status;
+        }
 
         return (
             <div className={classes.timeline} >
@@ -473,10 +479,12 @@ class TimeLine extends Component {
                             <div className={classes.leftContent} >
                                 <div className={classes.userAbout} >
                                     <UserAbout />
-                                </div> <div className={classes.photoGrid} >
+                                </div>
+                                <div className={classes.photoGrid} >
                                     <PhotoGrid />
-                                </div> <div className={classes.friendGrid} >
-                                    <FriendGrid />
+                                </div>
+                                <div className={classes.friendGrid} >
+                                    <FriendGrid friends={friends} />
                                 </div>
 
                             </div>
@@ -487,41 +495,41 @@ class TimeLine extends Component {
                                 <div className={classes.CreatePost} >
                                     <CreatePost />
                                 </div>
-                                {timeLinePosts? timeLinePosts.map(post=>(
+                                {allPosts ? allPosts.map(post => (
                                     <Paper key={post._id} className={classes.postItems}>
-                                    <List className={classes.list}>
-                                        <ListItem alignItems="flex-start">
-                                            <ListItemAvatar>
-                                                <Avatar alt="Remy Sharp" src={'/'+post.profileImage} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={post.createdBy}
-                                            />
-                                        </ListItem >
-                                    </List>
-                                    <SinglePost post={post}/>
-                                    <div className={classes.actionsResult}>
-                                    <Typography className={classes.actionsResultItem}><LikeIcon className={classes.likeResultIcon} color="primary" /></Typography>
-                                        <Typography className={classes.actionsResultItem}>{(post.like.length > 0) ? post.like.length : 0}</Typography>
-                                    </div>
-                                    <hr className={classes.divider} />
-                                    <div className={classes.actionsList}>
-                                    <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.includes({user:user.id})?classes.actionIcons:classes.takeAction} />Like</Typography>
-                                        <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
-                                        <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
-                                    </div>
-                                    <hr className={classes.divider} />
-                                    <div className={classes.commentSection}>
-                                        <div className={classes.createComment}>
-                                            <CreateComment />
+                                        <List className={classes.list}>
+                                            <ListItem alignItems="flex-start">
+                                                <ListItemAvatar>
+                                                    <Avatar alt="Remy Sharp" src={'/' + post.profileImage} />
+                                                </ListItemAvatar>
+                                                <ListItemText
+                                                    primary={post.createdBy}
+                                                />
+                                            </ListItem >
+                                        </List>
+                                        <SinglePost post={post} />
+                                        <div className={classes.actionsResult}>
+                                            <Typography className={classes.actionsResultItem}><LikeIcon className={classes.likeResultIcon} color="primary" /></Typography>
+                                            <Typography className={classes.actionsResultItem}>{(post.like.length > 0) ? post.like.length : 0}</Typography>
                                         </div>
-                                        <div className={classes.comments}>
-                                            <Comments />
+                                        <hr className={classes.divider} />
+                                        <div className={classes.actionsList}>
+                                            <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.includes({ user: user.id }) ? classes.actionIcons : classes.takeAction} />Like</Typography>
+                                            <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
+                                            <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
                                         </div>
-                                    </div>
-                                </Paper>
-                                )):null}
-                                
+                                        <hr className={classes.divider} />
+                                        <div className={classes.commentSection}>
+                                            <div className={classes.createComment}>
+                                                <CreateComment />
+                                            </div>
+                                            <div className={classes.comments}>
+                                                <Comments />
+                                            </div>
+                                        </div>
+                                    </Paper>
+                                )) : null}
+
                             </div>
                         </Grid>
                     </Grid>
@@ -537,4 +545,4 @@ const mapStateToProps = state => ({
     profile: state.profile
 })
 
-export default connect(mapStateToProps, { uploadPhoto, setTimeLineUser,likePost })(withStyles(useStyles)(withRouter(TimeLine)));
+export default connect(mapStateToProps, { uploadPhoto, setTimeLineUser, likePost })(withStyles(useStyles)(withRouter(TimeLine)));

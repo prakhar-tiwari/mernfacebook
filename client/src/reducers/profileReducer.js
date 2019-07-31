@@ -1,7 +1,8 @@
-import {SET_TIMELINE_USER} from '../actions/Types';
+import {SET_TIMELINE_USER, GET_FRIENDS} from '../actions/Types';
 
 const initialState={
-    timeLineUser:[]
+    timeLineUser:[],
+    friends:[]
 }
 
 const profileReducer=(state=initialState,action)=>{
@@ -10,6 +11,12 @@ const profileReducer=(state=initialState,action)=>{
             return{
                 ...state,
                 timeLineUser:action.payload
+            }
+
+        case GET_FRIENDS:
+            return{
+                ...state,
+                friends:action.payload
             }
 
         default: return state

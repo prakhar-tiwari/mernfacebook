@@ -10,6 +10,8 @@ import TimeLine from './components/timeline/TimeLine';
 import DashBoard from './components/posts/DashBoard';
 import Auth from './components/auth/Auth';
 import PrivateRoute from './utils/PrivateRoute';
+import TimeLinePage from './components/timeline/TimeLinePage';
+import HomePage from './components/HomePage';
 
 const useStyles = theme => ({
   root: {
@@ -25,42 +27,13 @@ class App extends Component {
       <BrowserRouter>
         <div className={classes.root}>
           <Grid container spacing={0}>
-
             <Switch>
-              <PrivateRoute exact path="/">
-                <Grid item xs={12}>
-                  <Navigation />
-                </Grid>
-                <Grid item xs={3}>
-
-                </Grid>
-                <Grid item xs={6}>
-                  <DashBoard />
-                </Grid>
-                <Grid item xs={3}>
-                  <UserList />
-                </Grid>
-              </PrivateRoute>
-            </Switch>
-
-            <Switch>
-              <PrivateRoute exact path="/timeline/:userName">
-                <Grid item xs={12}>
-                  <Navigation />
-                </Grid>
-                <Grid item xs={9}>
-                  <TimeLine />
-                </Grid>
-                <Grid item xs={3}>
-                  <UserList />
-                </Grid>
-              </PrivateRoute>
-            </Switch>
+              <Route exact path="/" component={HomePage} />
+              <Route exact path="/timeline/:userName" component={TimeLinePage} />
+              </Switch>
           </Grid>
         </div>
-        <Switch>
-          <Route exact path="/auth" component={Auth} />
-        </Switch>
+          <Route exact strict path="/auth" component={Auth} />
       </BrowserRouter>
     );
   }

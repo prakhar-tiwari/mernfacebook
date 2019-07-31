@@ -46,11 +46,12 @@ exports.getUser = (req, res, next) => {
                                 {                               // grouping required parameters of users
                                     $group: {
                                         _id: '$_id',
-                                        'user': {$first:{
-                                            name: '$name',
-                                            userName: '$userName',
-                                            profileImage: '$profileImage'
-                                        }
+                                        'user': {
+                                            $first: {
+                                                name: '$name',
+                                                userName: '$userName',
+                                                profileImage: '$profileImage'
+                                            }
                                         }
                                     }
                                 }
@@ -92,14 +93,29 @@ exports.getUser = (req, res, next) => {
             }
         },
         {
+            $unwind:{
+                path:'$friends',
+                preserveNullAndEmptyArrays:true
+            }
+        },
+        {
+            $unwind:{
+                path:'$friends.user',
+                preserveNullAndEmptyArrays:true
+            }
+        },
+        {
             $lookup: {                                      // populating user's friends with required parameters
                 from: 'users',
-                let: { user: '$friends.user' },
+                let: { user: '$friends.user', status: '$friends.status' },
                 pipeline: [
                     {
                         $match: {
                             $expr: {
-                                $in: ['$_id', '$$user']
+                                $and:[
+                                {$eq: ['$_id', '$$user']},
+                                {$eq: [1, '$$status']}
+                                ]
                             }
                         }
                     },
@@ -111,20 +127,19 @@ exports.getUser = (req, res, next) => {
                         }
                     }
                 ],
-                as: 'friends'
+                as: 'friends.user'
             }
         },
-
         {
             $unwind: {
-                path: '$friends',
+                path: '$friends.user',
                 preserveNullAndEmptyArrays: true
             }
         },
         {
             $lookup: {
                 from: 'posts',
-                let: { friendsId: '$friends._id' },
+                let: { friendsId: '$friends.user._id' },
                 pipeline: [
                     {
                         $match: {
