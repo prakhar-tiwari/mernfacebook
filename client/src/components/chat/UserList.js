@@ -49,7 +49,7 @@ class UserList extends Component {
 
     componentDidMount(){
         const userId=this.props.auth.user.id;
-        axios.post('/getfriendschat',{userId:userId})
+        axios.post('/getchatfriends',{userId:userId})
         .then(result=>{
             this.setState({friendsList:result.data})
         })

@@ -26,6 +26,7 @@ import Avatar from '@material-ui/core/Avatar';
 import CreateComment from '../posts/comments/CreateComment';
 import Comments from '../posts/comments/Comments';
 import { likePost } from '../../actions/postActions';
+import axios from 'axios';
 
 const useStyles = theme => ({
     timeline: {
@@ -334,6 +335,20 @@ class TimeLine extends Component {
         this.props.likePost(postId, id);
     }
 
+    sendFriendRequest(event,userId,tlUserId){
+        event.target.innerHTML="Friend Request Sent";
+        axios.post('/sendfriendrequest',{
+            userId:userId,
+            tlUserId:tlUserId
+        })
+        .then(result=>{
+            console.log(result);
+        })
+        .catch(err=>{
+            console.log(err);
+        })
+    }
+
     render() {
         const { classes } = this.props;
         const { user } = this.props.auth;
@@ -345,9 +360,10 @@ class TimeLine extends Component {
         const { allPosts } = this.props.post;
         const { friends } = this.props.profile;
 
-        const friendAction=['Friends','Friend Request Sent','Add Friend'];
-        if(!timeLineUser.authUser && friends.length>0){
-            const friendStatus=friends.find(friend=> friend.userName === user.userName).status;
+        let tlFriendStatus;
+        if (!timeLineUser.authUser && friends.length > 0) {
+            const friendStatus = friends.find(friend => friend.userName === user.userName);
+            tlFriendStatus = (friendStatus) ? friendStatus.status : -1;
         }
 
         return (
@@ -378,13 +394,17 @@ class TimeLine extends Component {
                         {(!timeLineUser.authUser) ?
                             <div className={classes.actionContainer} >
                                 <div className={classes.interactingActions} >
-                                    <div > {
-                                        (this.state.isFriend) ?
-                                            <a onClick={this.handleFriendPopper}
+                                    <div >
+                                    {(tlFriendStatus && tlFriendStatus === 1)?
+                                               <a onClick={this.handleFriendPopper}
                                                 variant="contained"
-                                                color="default" > Friends </a> : <a variant="contained"
-                                                    color="default" > Add Friend </a>
-                                    }
+                                                color="default" > Friends </a> : 
+                                                (tlFriendStatus === 2)?
+                                                    <a variant="contained"
+                                                    color="default" >Friend Request Sent</a>:
+                                                    <a onClick={(e)=>this.sendFriendRequest(e,user.id,timeLineUser._id)} variant="contained"
+                                                    color="default" >Add Friend</a>
+                                                }
                                         <Popper className={classes.popperElement}
                                             anchorEl={this.state.anchorE1}
                                             open={openFriend}
@@ -514,7 +534,7 @@ class TimeLine extends Component {
                                         </div>
                                         <hr className={classes.divider} />
                                         <div className={classes.actionsList}>
-                                            <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.includes({ user: user.id }) ? classes.actionIcons : classes.takeAction} />Like</Typography>
+                                            <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.find(l=> l.user === user.id) ? classes.actionIcons : classes.takeAction} />Like</Typography>
                                             <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
                                             <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
                                         </div>

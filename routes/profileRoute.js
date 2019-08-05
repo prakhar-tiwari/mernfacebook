@@ -8,8 +8,14 @@ Router.post('/getallusers',profileController.getAllUsers);
 
 Router.post('/getfriends',profileController.getFriends);
 
-Router.post('/getfriendschat',profileController.getFriendsChat);
+Router.post('/getchatfriends',profileController.getChatFriends);
 
 Router.post('/uploadphoto',profileController.uploadPhoto);
+
+Router.post('/sendfriendrequest',profileController.sendFriendRequest);
+
+Router.post('/acceptfriend',profileController.acceptFriend);
+
+Router.post('/getfriendRequests',profileController.friendRequests);
 
 module.exports=Router;

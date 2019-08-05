@@ -77,7 +77,14 @@ exports.getUser = (req, res, next) => {
                     },
                     {
                         $unwind: '$friends'          // unwinding as it gave array of array, we need only friends array
-                    }
+                    },
+                    // {
+                    //     $match: {
+                    //         $expr: {
+                    //             $eq: [1, '$friends.status']
+                    //         }
+                    //     }
+                    // },
                 ],
                 as: 'profile'
             }
@@ -93,15 +100,15 @@ exports.getUser = (req, res, next) => {
             }
         },
         {
-            $unwind:{
-                path:'$friends',
-                preserveNullAndEmptyArrays:true
+            $unwind: {
+                path: '$friends',
+                preserveNullAndEmptyArrays: true
             }
         },
         {
-            $unwind:{
-                path:'$friends.user',
-                preserveNullAndEmptyArrays:true
+            $unwind: {
+                path: '$friends.user',
+                preserveNullAndEmptyArrays: true
             }
         },
         {
@@ -112,10 +119,7 @@ exports.getUser = (req, res, next) => {
                     {
                         $match: {
                             $expr: {
-                                $and:[
-                                {$eq: ['$_id', '$$user']},
-                                {$eq: [1, '$$status']}
-                                ]
+                                $eq: ['$_id', '$$user']
                             }
                         }
                     },
@@ -168,11 +172,12 @@ exports.getUser = (req, res, next) => {
                                 {                               // grouping required parameters of users
                                     $group: {
                                         _id: '$_id',
-                                        'user': {$first:{
-                                            name: '$name',
-                                            userName: '$userName',
-                                            profileImage: '$profileImage'
-                                        }
+                                        'user': {
+                                            $first: {
+                                                name: '$name',
+                                                userName: '$userName',
+                                                profileImage: '$profileImage'
+                                            }
                                         }
                                     }
                                 }
@@ -240,16 +245,64 @@ exports.getFriends = (req, res, next) => {
         })
 }
 
-exports.getFriendsChat = (req, res, next) => {
+exports.getChatFriends = (req, res, next) => {
     const { userId } = req.body;
-    Profile.find({ 'user': userId })
-        .select('friends')
-        .populate({
-            path: 'friends.user',
-            select: 'name userName profileImage'
-        })
+    Profile.aggregate([
+        {
+            $match: {
+                user: ObjectId(userId)
+            }
+        },
+        {
+            $unwind: '$friends'
+        },
+        {
+            $match: {
+                $expr: {
+                    $eq: [1, '$friends.status']
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                let: { user: '$friends.user' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ['$_id', '$$user']
+                            }
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            userName: 1,
+                            profileImage: 1
+                        },
+                    },
+
+                ],
+                as: 'friends.user'
+            }
+        },
+        {
+            $unwind: {
+                path: '$friends.user',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $group: {
+                _id: '$_id',
+                friends: { $push: '$friends' }
+            }
+        }
+    ])
         .then(friends => {
-            const sFriends = friends[0].friends.filter(friend => friend.user !== null);
+            sFriends = friends[0].friends.filter(friend => friend.user !== null);
             return res.status(200).json(sFriends);
         })
         .catch(err => {
@@ -277,5 +330,151 @@ exports.uploadPhoto = (req, res, next) => {
         .catch(err => {
             console.log(err);
             return res.status(500).json(err)
+        })
+}
+
+exports.sendFriendRequest = (req, res, next) => {
+    const { userId, tlUserId } = req.body;
+    Profile.updateOne(
+        {
+            'user': tlUserId,
+            'friends.user': { $ne: ObjectId(userId) }
+        },
+        {
+            $push: {
+                friends: {
+                    user: userId,
+                    status: 2
+                }
+            }
+        }
+    )
+        .then(user => {
+            if(!user){
+                return res.status(400).json({message:'User not found'})
+            }
+            return Profile.updateOne(
+                {
+                    'user': userId,
+                    'friends.user': { $ne: ObjectId(tlUserId) }
+                },
+                {
+                    $push: {
+                        friends: {
+                            user: tlUserId,
+                            status: 3
+                        }
+                    }
+                }
+            )
+        })
+        .then(user => {
+            if (!user) {
+                return res.status(400).json({ message: 'User not found' });
+            }
+            return res.status(200).json(user)
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json(err);
+        })
+}
+
+exports.acceptFriend = (req, res, next) => {
+    const { userId, tlUserId } = req.body;
+    Profile.updateOne(
+        {
+            'user': tlUserId,
+            'friends.user': ObjectId(userId)
+        },
+        {
+            $set: { 'friends.$.status': 1 }
+        }
+    )
+        .then(user => {
+            if (!user) {
+                return res.status(400).json({ message: 'User not found' });
+            }
+            return Profile.updateOne(
+                {
+                    'user': userId,
+                    'friends.user': ObjectId(tlUserId)
+                },
+                {
+                    $set: { 'friends.$.status': 1 }
+                }
+            )
+        })
+        .then(result => {
+            return res.status(200).json(result);
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json(err);
+        })
+}
+
+exports.friendRequests = (req, res, next) => {
+    const {userId}=req.body;
+    Profile.aggregate([
+        {
+            $match: {
+                user: ObjectId(userId)
+            }
+        },
+        {
+            $unwind: '$friends'
+        },
+        {
+            $match: {
+                $expr: {
+                    $eq: [2, '$friends.status']
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                let: { user: '$friends.user' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ['$_id', '$$user']
+                            }
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            userName: 1,
+                            profileImage: 1
+                        },
+                    },
+
+                ],
+                as: 'friends.user'
+            }
+        },
+        {
+            $unwind: {
+                path: '$friends.user',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $group: {
+                _id: '$_id',
+                friends: { $push: '$friends' }
+            }
+        }
+    ])
+        .then(friends => {
+            sFriends = friends[0].friends.filter(friend => friend.user !== null);
+            return res.status(200).json(sFriends);
+        })
+        .catch(err => {
+            return res.status(500).json(err);
         })
 }

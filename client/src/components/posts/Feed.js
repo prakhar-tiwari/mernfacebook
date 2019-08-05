@@ -128,7 +128,7 @@ class Feed extends Component {
                             </div>
                             <hr className={classes.divider} />
                             <div className={classes.actionsList}>
-                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.includes({user:user.id})?classes.actionIcons:classes.takeAction} />Like</Typography>
+                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.find(l=> l.user === user.id)?classes.actionIcons:classes.takeAction} />Like</Typography>
                                 <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
                                 <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
                             </div>

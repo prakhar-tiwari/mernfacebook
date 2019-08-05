@@ -62,7 +62,8 @@ export const setTimeLineUser = (userName, authUserName) => dispatch => {
                 payload:allPosts
             });
             
-            const friends=resultData.friends.map(friend=>{
+            var friends=resultData.friends.map(friend=>{
+                if(friend.user)
                 return {
                     _id:friend.user._id,
                     name:friend.user.name,
@@ -71,6 +72,7 @@ export const setTimeLineUser = (userName, authUserName) => dispatch => {
                     status:friend.status
                 }
             });
+             friends=(friends[0])?friends:[];
 
             dispatch({
                 type:GET_FRIENDS,

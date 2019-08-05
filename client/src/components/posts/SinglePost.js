@@ -109,7 +109,7 @@ function SinglePost(props) {
     var openTag = Boolean(anchorE1);
 
     return (
-        <div className={classes.postDescription}>
+        <div key={post._id} className={classes.postDescription}>
             <Typography component="div" style={{ textAlign: 'left' }}>
                 <p>{post.text}</p>
                 {(tags.length===1)?<p>- with <a href="#">{tags[0].user.name}</a></p>:(tags.length>1)?<p>- with <a href="#">{tags[0].user.name}</a> and <a onClick={handleTagPopper}>{tagsCount} others</a></p>:null}
