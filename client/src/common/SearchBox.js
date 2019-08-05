@@ -1,9 +1,9 @@
-import React,{useState,useEffect} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
-import { Link,withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import axios from 'axios';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
     dropDown: {
@@ -40,36 +40,29 @@ const useStyles = makeStyles(theme => ({
 );
 
 
-
 function SearchBox(props) {
     const classes = useStyles();
-    const [searchOn,setSearchOn]=useState(false);
-    const [friends,setFriends]=useState([]);
-    const [searched,setSearched]=useState([]);
+    const [searchOn, setSearchOn] = useState(false);
+    const [friends, setFriends] = useState([]);
 
-    
-    const handleClick=(e)=>{
-        
+    const searchFriends = (e) => {
+        const postData = { searchText: e.target.value };
+        axios.post('/getallusers', postData)
+            .then(result => {
+                setFriends(result.data);
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
-    const searchFriends=(e)=>{
-        const postData={searchText:e.target.value};
-        axios.post('/getallusers',postData)
-        .then(result=>{
-            setFriends(result.data);
-        })
-        .catch(err=>{
-            console.log(err);
-        })
-    }
-
-    let searchedFriends = (friends)?friends.map((search, index) => (
-        <Link to={{
-            pathname:'/timeline/'+search.userName
+    let searchedFriends = (friends) ? friends.map((search, index) => (
+        <Link onClick={() => setSearchOn(false)} to={{
+            pathname: '/' + search.userName
         }} key={index}>
             {search.name}
         </Link>
-    )):null
+    )) : null
 
 
 
@@ -84,17 +77,18 @@ function SearchBox(props) {
                     placeholder='Search...'
                     disableUnderline={true}
                     onChange={searchFriends}
-                    onFocus={()=>setSearchOn(true)}/>
+                    onFocus={() => setSearchOn(true)} />
             </div>
-            <div className={classes.dropDownContent}>
-                {(searchOn)?searchedFriends:null}
+            {(searchOn) ? <div className={classes.dropDownContent}>
+                {searchedFriends}
             </div>
+                : null}
         </div>
     )
 }
 
-const mapStateToProps=state=>({
-    auth:state.auth
+const mapStateToProps = state => ({
+    auth: state.auth
 })
 
 export default connect(mapStateToProps)(withRouter(SearchBox));

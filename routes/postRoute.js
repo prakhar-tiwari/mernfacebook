@@ -12,5 +12,7 @@ Router.post('/submitpost',postController.submitPost);
 
 Router.post('/likepost',postController.likePost);
 
+Router.post('/createcomment',postController.createComment);
+
 
 module.exports=Router;

@@ -297,7 +297,7 @@ class Navigation extends Component {
                 onClose={handleMobileMenuClose}
             >
                 <MenuItem onClick={() => this.props.history.push({
-                    pathname: '/timeline/' + user.userName,
+                    pathname: '/' + user.userName,
                     state: {
                         user: user
                     }
@@ -366,7 +366,7 @@ class Navigation extends Component {
                         </div>
                         <div className={classes.sectionDesktop}>
                             <MenuItem onClick={() => this.props.history.push({
-                                pathname: '/timeline/' + user.userName,
+                                pathname: '/' + user.userName,
                                 state: {
                                     user: user
                                 }

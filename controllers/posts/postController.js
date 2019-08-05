@@ -1,5 +1,6 @@
 const Post = require('../../models/Post');
 const Profile = require('../../models/Profile');
+const Comment = require('../../models/Comment');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 
@@ -24,8 +25,8 @@ exports.getFeed = (req, res, next) => {
             return Post.find({
                 'createdBy': {
                     $in: profileIds
-                  },
-                })
+                },
+            })
                 .populate({
                     path: 'createdBy',
                     select: 'name userName profileImage'
@@ -76,7 +77,7 @@ exports.submitPost = (req, res, next) => {
     let tFriend = JSON.parse(taggedFriends);
     tFriend = tFriend.map(id => {
         return {
-            user:ObjectId(id)
+            user: ObjectId(id)
         }
     });
     const images = req.files;
@@ -125,7 +126,7 @@ exports.likePost = (req, res, next) => {
                 return res.status(400).json({ message: 'user already liked the post' })
             }
             post.like.unshift({
-                user:ObjectId(userId)
+                user: ObjectId(userId)
             });
             return post.save()
         })
@@ -136,4 +137,22 @@ exports.likePost = (req, res, next) => {
             console.log(err)
             return res.status(200).json(err);
         })
+}
+
+
+exports.createComment = (req, res, next) => {
+    const { userId, postId, text } = req.body;
+    const comment = {
+        text: text,
+        from: userId,
+        post: postId
+    }
+    Comment.create(comment)
+        .then(comment => {
+            return res.status(200).json(comment);
+        })
+        .catch(err=>{
+            console.log(err)
+            return res.status(500).json(err);
+        });
 }

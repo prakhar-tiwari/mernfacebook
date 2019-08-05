@@ -58,7 +58,55 @@ exports.getUser = (req, res, next) => {
                             ],
                             as: 'tags'
                         }
-                    }
+                    },
+                    {
+                        $lookup: {
+                            from: 'comments',
+                            let: { postId: '$_id' },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $eq: ['$post', '$$postId']
+                                        }
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        post: 0
+                                    }
+                                },
+                                {
+                                    $lookup: {
+                                        from: 'users',
+                                        let: { userId: '$from' },
+                                        pipeline: [
+                                            {
+                                                $match: {
+                                                    $expr: {
+                                                        $eq: ['$_id', '$$userId']
+                                                    }
+                                                }
+                                            },
+                                            {                               // grouping required parameters of users
+                                                $group: {
+                                                    _id:'$_id',
+                                                    name:{$first:'$name'},
+                                                    userName:{$first:'$userName'},
+                                                    profileImage:{$first:'$profileImage'}
+                                                }
+                                            },
+                                        ],
+                                        as: 'from'
+                                    }
+                                },
+                                {
+                                    $unwind:'$from'
+                                }
+                            ],
+                            as: 'comments'
+                        }
+                    },
                 ],
                 as: 'posts'
             }
@@ -184,7 +232,55 @@ exports.getUser = (req, res, next) => {
                             ],
                             as: 'tags'
                         }
-                    }
+                    },
+                    {
+                        $lookup: {
+                            from: 'comments',
+                            let: { postId: '$_id' },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $eq: ['$post', '$$postId']
+                                        }
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        post: 0
+                                    }
+                                },
+                                {
+                                    $lookup: {
+                                        from: 'users',
+                                        let: { userId: '$from' },
+                                        pipeline: [
+                                            {
+                                                $match: {
+                                                    $expr: {
+                                                        $eq: ['$_id', '$$userId']
+                                                    }
+                                                }
+                                            },
+                                            {                               // grouping required parameters of users
+                                                $group: {
+                                                    _id:'$_id',
+                                                    name:{$first:'$name'},
+                                                    userName:{$first:'$userName'},
+                                                    profileImage:{$first:'$profileImage'}
+                                                }
+                                            },
+                                        ],
+                                        as: 'from'
+                                    }
+                                },
+                                {
+                                    $unwind:'$from'
+                                }
+                            ],
+                            as: 'comments'
+                        }
+                    },
                 ],
                 as: 'friends.posts'
             }
@@ -214,17 +310,21 @@ exports.getUser = (req, res, next) => {
 
 exports.getAllUsers = (req, res, next) => {
     const { searchText } = req.body;
-    User.find({
-        "name": { "$regex": searchText, "$options": "i" }
-    })
-        .select('name userName profileImage')
-        .then(result => {
-            return res.status(200).json(result)
+    if (searchText !== '') {
+        User.find({
+            "name": { "$regex": searchText, "$options": "i" }
         })
-        .catch(err => {
-            return res.status(500).json(err);
-        })
-
+            .select('name userName profileImage')
+            .then(result => {
+                return res.status(200).json(result)
+            })
+            .catch(err => {
+                return res.status(500).json(err);
+            })
+    }
+    else {
+        return res.status(200).json([]);
+    }
 }
 
 exports.getFriends = (req, res, next) => {
@@ -350,8 +450,8 @@ exports.sendFriendRequest = (req, res, next) => {
         }
     )
         .then(user => {
-            if(!user){
-                return res.status(400).json({message:'User not found'})
+            if (!user) {
+                return res.status(400).json({ message: 'User not found' })
             }
             return Profile.updateOne(
                 {
@@ -415,7 +515,7 @@ exports.acceptFriend = (req, res, next) => {
 }
 
 exports.friendRequests = (req, res, next) => {
-    const {userId}=req.body;
+    const { userId } = req.body;
     Profile.aggregate([
         {
             $match: {

@@ -541,7 +541,7 @@ class TimeLine extends Component {
                                         <hr className={classes.divider} />
                                         <div className={classes.commentSection}>
                                             <div className={classes.createComment}>
-                                                <CreateComment />
+                                                <CreateComment postId={post._id} />
                                             </div>
                                             <div className={classes.comments}>
                                                 <Comments />

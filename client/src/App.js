@@ -26,14 +26,14 @@ class App extends Component {
     return (
       <BrowserRouter>
         <div className={classes.root}>
-          <Grid container spacing={0}>
-            <Switch>
-              <Route exact path="/" component={HomePage} />
-              <Route exact path="/timeline/:userName" component={TimeLinePage} />
-              </Switch>
-          </Grid>
+          <Switch>
+            <Route path="/auth" component={Auth} />
+            <Grid container spacing={0}>
+              <PrivateRoute exact path="/" component={HomePage} />
+              <PrivateRoute path="/:userName" component={TimeLinePage} />
+            </Grid>
+          </Switch>
         </div>
-          <Route exact strict path="/auth" component={Auth} />
       </BrowserRouter>
     );
   }
