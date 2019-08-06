@@ -1,4 +1,4 @@
-import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED } from '../actions/Types';
+import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED, CREATE_COMMENT } from '../actions/Types';
 
 const initialState = {
     allPosts: [],
@@ -24,6 +24,19 @@ const postReducer = (state = initialState, action) => {
                 ...state,
                 timeLinePosts: action.payload
             }
+        case CREATE_COMMENT: {
+            const posts=[...state.allPosts];
+            const comment=action.payload;
+            posts.find(post=>{
+                if(post._id === comment.post){
+                    post.comments.push(comment)
+                }
+            })
+            return{
+                ...state,
+                allPosts:posts
+            }
+        }
 
         default:
             return state;
