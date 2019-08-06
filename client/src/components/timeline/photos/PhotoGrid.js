@@ -74,7 +74,7 @@ export default function PhotoGrid() {
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
                         {tileData.map(tile => (
                             <GridListTile key={tile.img} cols={tile.cols || 1}>
-                                <img onClick={()=>onPhotoClick(tile.img)} src={tile.img} alt={tile.title} />
+                                <img onClick={()=>onPhotoClick(tile.img)} src={'/'+tile.img} alt={tile.title} />
                             </GridListTile>
                         ))}
                     </GridList>

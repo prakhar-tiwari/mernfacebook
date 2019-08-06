@@ -68,11 +68,13 @@ export default function Photo(props) {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [image, setImage] = React.useState(null);
+    const [userName,setUserName]=React.useState('');
 
     React.useEffect(() => {
         if (open !== props.openPhoto) {
             setOpen(props.openPhoto);
-            setImage(props.imageDetails)
+            setImage(props.imageDetails);
+            setUserName(props.post.createdBy.name);
         }
     })
 
@@ -96,7 +98,6 @@ export default function Photo(props) {
                         <img
                             className={classes.image}
                             src={image}
-                            title="Batman"
                         />
                     </div>
 
@@ -106,7 +107,7 @@ export default function Photo(props) {
                                 <Avatar alt="Remy Sharp" src="images/flash.jpg" />
                             </ListItemAvatar>
                             <ListItemText
-                                primary="The Flash"
+                                primary={userName}
                             />
                         </ListItem >
                         <Paper className={classes.actionsList}>

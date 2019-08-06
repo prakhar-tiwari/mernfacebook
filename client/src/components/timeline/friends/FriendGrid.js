@@ -46,8 +46,9 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function FriendGrid() {
+export default function FriendGrid(props) {
     const classes = useStyles();
+    const {friends} = props;
     return (
         <div>
             <Paper className={classes.friendGrid}>
@@ -63,11 +64,11 @@ export default function FriendGrid() {
                 </div>
                 <div className={classes.pictureGrid}>
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
-                        {tileData.map(tile => (
-                            <GridListTile key={tile.img} cols={tile.cols || 1}>
-                                <img src={tile.img} alt={tile.title} />
+                        {friends.map(friend => (
+                            <GridListTile key={friend._id} cols={1}>
+                                <img src={(friend.profileImage)?'/'+friend.profileImage:'/images/blank.png'} alt={friend.name} />
                                 <GridListTileBar
-                                    title={tile.title}
+                                    title={friend.name}
                                 />
                             </GridListTile>
                         ))}

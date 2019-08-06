@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../../models/User');
+const Profile=require('../../models/Profile');
 const jwt = require('jsonwebtoken');
 
 exports.signup = (req, res, next) => {
@@ -44,7 +45,11 @@ exports.signup = (req, res, next) => {
             return User.create(newUser)
         })
         .then(user => {
-            return res.status(200).json(user);
+            const profile={user:user._id}
+            return Profile.create(profile);
+        })
+        .then(result=>{
+            return res.status(200).json({message:'User\'s profile created successfully '});
         })
         .catch(err => {
             console.log(err)
@@ -75,7 +80,8 @@ exports.login = (req, res, next) => {
             const payload = {
                 id: authUser[0]._id,
                 name: authUser[0].name,
-                userName:authUser[0].userName
+                userName:authUser[0].userName,
+                profileImage:authUser[0].profileImage,
             };
 
             jwt.sign(

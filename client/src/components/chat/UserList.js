@@ -11,6 +11,8 @@ import Badge from '@material-ui/core/Badge';
 import green from '@material-ui/core/colors/green';
 import ChatBox from './ChatBox';
 import Modal from '@material-ui/core/Modal';
+import axios from 'axios';
+import {connect} from 'react-redux';
 
 
 const useStyles = theme => ({
@@ -40,8 +42,20 @@ class UserList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false
+            open: false,
+            friendsList:[]
         }
+    }
+
+    componentDidMount(){
+        const userId=this.props.auth.user.id;
+        axios.post('/getchatfriends',{userId:userId})
+        .then(result=>{
+            this.setState({friendsList:result.data})
+        })
+        .catch(err=>{
+            console.log(err);
+        })
     }
 
     openModal = () => {
@@ -54,25 +68,23 @@ class UserList extends Component {
 
     render() {
         const { classes } = this.props;
+        const {friendsList}=this.state;
         return (
             <div>
                 <Paper className={classes.userList}>
                     <Typography className={classes.contactsHeader}>Contacts</Typography>
                     <List component="nav" aria-label="Secondary mailbox folders">
-                        <ListItem button>
+                        {(friendsList)?friendsList.map(friend=>(
+                            <ListItem key={friend.user._id} button onClick={this.openModal}>
                             <ListItemAvatar>
-                                <Avatar alt="Remy Sharp" src="images/flash.jpg" />
+                                <Avatar alt="Remy Sharp" src={'/'+friend.user.profileImage} />
                             </ListItemAvatar>
-                            <ListItemText primary="The Flash" />
+                            <ListItemText primary={friend.user.name} />
                             {/* <Badge color="primary" variant="dot"></Badge> */}
                         </ListItem>
-                        <ListItem button onClick={this.openModal}>
-                            <ListItemAvatar>
-                                <Avatar alt="Remy Sharp" src="images/Batman.jpg" />
-                            </ListItemAvatar>
-                            <ListItemText primary="Batman" />
-                            {/* <Badge color="primary" variant="dot"></Badge> */}
-                        </ListItem>
+                        )):
+                        null}
+                        
                     </List>
 
                 </Paper>
@@ -83,4 +95,8 @@ class UserList extends Component {
     }
 }
 
-export default withStyles(useStyles)(UserList);
+const mapStateToProps=state=>({
+    auth:state.auth
+})
+
+export default connect(mapStateToProps)(withStyles(useStyles)(UserList));

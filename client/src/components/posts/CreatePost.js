@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -7,10 +8,14 @@ import PostIcon from '@material-ui/icons/LocalPostOffice';
 import Button from '@material-ui/core/Button';
 import Chip from '@material-ui/core/Chip';
 import PhotoCamera from '@material-ui/icons/CloudUpload';
+import PeopleIcon from '@material-ui/icons/PeopleTwoTone';
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import PlusIcon from '@material-ui/icons/Add';
 import { Icon } from '@material-ui/core';
+import { connect } from 'react-redux';
+import TagFriends from './TagFriends';
+import { submitPost } from '../../actions/postActions';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -23,7 +28,7 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'left',
         background: '#f5f6f7',
         borderRadius: '4px',
-        lineHeight:'2rem'
+        lineHeight: '2rem'
     },
     paper: {
         padding: theme.spacing(3, 2),
@@ -44,7 +49,7 @@ const useStyles = makeStyles(theme => ({
         }
     },
     postButton: {
-        width: '70%',
+        width: '50%',
         marginTop: theme.spacing(2)
     },
     postIcon: {
@@ -59,6 +64,7 @@ const useStyles = makeStyles(theme => ({
     media: {
         marginTop: theme.spacing(2),
         paddingTop: '56.25%', // 16:9
+        backgroundPosition: 'initial'
     },
     imagePreviewBox: {
         display: 'flex',
@@ -91,37 +97,77 @@ const useStyles = makeStyles(theme => ({
         },
         "& span svg": {
             marginTop: '50%',
-            transform: 'translateY(-50%)'
+            marginLeft: '50%',
+            transform: 'translate(-50%,-50%)'
         }
     },
-    divider:{
-        marginTop:'8px',
-        lineHeight:'1px'
+    firstDivider: {
+        marginTop: '24px',
+        lineHeight: '1px'
+    },
+    secondDivider: {
+        marginTop: '8px',
+        lineHeight: '1px'
     }
 }));
 
-export default function PaperSheet() {
+function CreatePost(props) {
     const classes = useStyles();
+    const [postText, setPostText] = useState('');
+    const [postFiles, setPostFiles] = useState([]);
     const [imagePreview, setImagePreview] = useState(null);
     const [imageName, setImageName] = useState('');
-    const [uploadedImages, setUploadedImages] = useState([])
+    const [uploadedImages, setUploadedImages] = useState([]);
+    const [tagFriends, setTagFriends] = useState(false);
+    const [taggedFriends, setTaggedFriends] = useState([]);
 
     const onImageChange = (event) => {
         var file = event.target.files[0];
-        var reader = new FileReader();
-        const url = reader.readAsDataURL(file);
-        reader.onloadend = (event) => {
-            setImagePreview(reader.result);
-            setImageName(file.name);
-            const imageDetails = {
-                imageSrc: reader.result,
-                name: file.name
+        if (file) {
+            const fileArr = [...postFiles];
+            fileArr.push(file);
+            setPostFiles(fileArr);
+            var reader = new FileReader();
+            const url = reader.readAsDataURL(file);
+            reader.onloadend = (event) => {
+                setImagePreview(reader.result);
+                setImageName(file.name);
+                const imageDetails = {
+                    imageSrc: reader.result,
+                    name: file.name
+                }
+                const updatedImages = [...uploadedImages];
+                updatedImages.unshift(imageDetails);
+                setUploadedImages(updatedImages);
             }
-            const updatedImages = [...uploadedImages];
-            updatedImages.unshift(imageDetails);
-            setUploadedImages(updatedImages);
         }
     }
+
+    const submitPost = (e) => {
+        e.preventDefault();
+        const { user } = props.auth;
+        const taggedFIds = (taggedFriends) ? taggedFriends.map(tFriend => tFriend.id) : null;
+        let formData = new FormData();
+        formData.append('postText', postText);
+        postFiles.map(postFile => {
+            formData.append('fileImages', postFile);
+        })
+        formData.append('userId', user.id);
+        formData.append('taggedFriends', JSON.stringify(taggedFIds));
+        props.submitPost(formData);
+        setImagePreview(null);
+        setPostFiles([]);
+        setPostText('');
+        setTagFriends(false);
+        setTaggedFriends([]);
+        setImageName('');
+        setUploadedImages([]);
+    }
+
+    const handleTagging = (selectedFriends) => {
+        setTaggedFriends(selectedFriends);
+    }
+
     return (
         <div className={classes.root}>
             <div className={classes.postHeader}>
@@ -133,6 +179,8 @@ export default function PaperSheet() {
                     multiline={true}
                     fullWidth
                     disableUnderline={true}
+                    onChange={(e) => setPostText(e.target.value)}
+                    value={postText}
                 />
                 {(imagePreview != null) ? <Card className={classes.card}>
                     <CardMedia
@@ -141,8 +189,13 @@ export default function PaperSheet() {
                         title={imageName}
                     />
                 </Card> : null}
-                <Divider className={classes.divider}/>
-                {(uploadedImages.length>0) ?
+
+                {(tagFriends) ? <Divider className={classes.firstDivider} /> : null}
+
+                {(tagFriends) ? <TagFriends taggedFriends={handleTagging} /> : null}
+
+                <Divider className={classes.secondDivider} />
+                {(uploadedImages.length > 0) ?
                     <div className={classes.imagePreviewBox}>
                         {uploadedImages.map((image, index) => (
                             <div key={index} className={classes.imageBox}>
@@ -172,7 +225,19 @@ export default function PaperSheet() {
                         />
 
                     </label>
-                    <Button className={classes.postButton} variant="contained" color="primary">
+                    <label onClick={() => setTagFriends(!tagFriends)} htmlFor="">
+                        <Chip
+                            icon={<PeopleIcon />}
+                            label="Tag Friends"
+                            color="primary"
+                            className={classes.chip}
+
+                        />
+                    </label>
+                    <Button
+                        disabled={(postText || postFiles.length > 0) ? false : true}
+                        onClick={submitPost}
+                        className={classes.postButton} variant="contained" color="primary">
                         Post<PostIcon className={classes.postIcon} />
                     </Button>
                 </div>
@@ -180,3 +245,10 @@ export default function PaperSheet() {
         </div>
     )
 }
+
+const mapStateToProps = state => ({
+    auth: state.auth,
+    post: state.post
+})
+
+export default connect(mapStateToProps, { submitPost })(CreatePost);

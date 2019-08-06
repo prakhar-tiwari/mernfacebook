@@ -55,17 +55,18 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function Comments() {
+export default function Comments(props) {
     const classes = useStyles();
+    const {comment} = props;
     return (
         <div>
             <div className={classes.commentSection}>
                 <div className={classes.message}>
                     <ListItemAvatar>
-                        <Avatar alt="Remy Sharp" src="images/Batman.jpg" />
+                        <Avatar alt={comment.from.name} src={(comment.from.profileImage)?'/'+comment.from.profileImage:'/images/blank.png'} />
                     </ListItemAvatar>
                     <div className={classes.messageBody}>
-                        <Typography component="p"><a>Batman</a> This is a demo comment</Typography>
+                        <Typography component="p"><a>{comment.from.name}</a> {comment.text}</Typography>
                         <div className={classes.actionsList}>
                             <a>Like</a>
                             <a>Reply</a>
