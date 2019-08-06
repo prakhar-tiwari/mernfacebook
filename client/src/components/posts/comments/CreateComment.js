@@ -5,6 +5,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Input from '@material-ui/core/Input';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import {createComment} from '../../../actions/postActions';
 
 const useStyles = makeStyles(theme => ({
     commentSection: {
@@ -26,17 +27,8 @@ function CreateComment(props) {
     const [commentText, setCommentText] = useState('');
     const handleCommentText = (e) => {
         if (e.key === 'Enter') {
-            axios.post('/createcomment',{
-                userId:user.id,
-                postId:postId,
-                text:commentText
-            })
-            .then(result=>{
-                console.log(result)
-            })
-            .catch(err=>{
-                console.log(err);
-            })
+            setCommentText('');
+            props.onCreateComment(user.id,postId,commentText)
         }
     }
     
@@ -64,4 +56,8 @@ const mapStateToProps = state => ({
     auth: state.auth
 })
 
-export default connect(mapStateToProps)(CreateComment);
+const mapDispatchToProps = dispatch =>({
+    onCreateComment:(userId,postId,text)=>dispatch(createComment(userId,postId,text))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateComment);
