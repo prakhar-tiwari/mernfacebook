@@ -1,31 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import Input from '@material-ui/core/Input';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
+import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
     commentSection: {
         display: 'flex',
-        padding:'0 8px'
+        padding: '12px 16px 8px 8px'
     },
-    commentBox:{
-        width:'100%',
-        padding:'4px 20px',
-        border:'1px solid #ccc',
-        borderRadius:'25px'
+    commentBox: {
+        width: '100%',
+        padding: '4px 20px',
+        border: '1px solid #ccc',
+        borderRadius: '25px'
     }
 }));
 
 function CreateComment(props) {
     const classes = useStyles();
-    const {user}=props.auth;
+    const { user } = props.auth;
+    const { postId } = props;
+    const [commentText, setCommentText] = useState('');
+    const handleCommentText = (e) => {
+        if (e.key === 'Enter') {
+            axios.post('/createcomment',{
+                userId:user.id,
+                postId:postId,
+                text:commentText
+            })
+            .then(result=>{
+                console.log(result)
+            })
+            .catch(err=>{
+                console.log(err);
+            })
+        }
+    }
+    
     return (
         <div className={classes.commentSection}>
             <div>
                 <ListItemAvatar>
-                    <Avatar alt="Remy Sharp" src={'/'+user.profileImage} />
+                    <Avatar alt="Remy Sharp" src={'/' + user.profileImage} />
                 </ListItemAvatar>
             </div>
             <div className={classes.commentBox}>
@@ -33,14 +52,16 @@ function CreateComment(props) {
                     fullWidth={true}
                     placeholder="Write a comment..."
                     disableUnderline={true}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    onKeyPress={(e) => handleCommentText(e)}
                 />
             </div>
         </div>
     )
 }
 
-const mapStateToProps=state=>({
-    auth:state.auth
+const mapStateToProps = state => ({
+    auth: state.auth
 })
 
 export default connect(mapStateToProps)(CreateComment);

@@ -135,10 +135,12 @@ class Feed extends Component {
                             <hr className={classes.divider} />
                             <div className={classes.commentSection}>
                                 <div className={classes.createComment}>
-                                    <CreateComment />
+                                    <CreateComment postId={post._id} />
                                 </div>
                                 <div className={classes.comments}>
-                                    <Comments />
+                                    {(post.comments)?post.comments.map(comment=>(
+                                        <Comments key={comment._id} comment={comment} />
+                                    )):null}
                                 </div>
                             </div>
                         </Paper>
