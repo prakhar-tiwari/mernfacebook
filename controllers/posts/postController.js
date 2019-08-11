@@ -385,7 +385,6 @@ exports.createComment = (req, res, next) => {
         post: postId
     }
     Comment.create(comment)
-<<<<<<< HEAD
         .then(com => {
             return Comment.find({'post':postId, '_id':com._id})
             .populate({
@@ -395,10 +394,6 @@ exports.createComment = (req, res, next) => {
         })
         .then(result=>{
             return res.status(200).json(result);
-=======
-        .then(comment => {
-            return res.status(200).json(comment);
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
         })
         .catch(err=>{
             console.log(err)

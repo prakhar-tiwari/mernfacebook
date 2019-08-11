@@ -8,6 +8,7 @@ const app=express();
 const authRoute=require('./routes/auth');
 const postRoute=require('./routes/postRoute');
 const profileRoute=require('./routes/profileRoute');
+const chatRoute=require('./routes/chatRoute');
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -46,6 +47,7 @@ app.use(multer({storage:fileStorage,fileFilter:filter}).array('fileImages'));
 app.use(authRoute);
 app.use(postRoute);
 app.use(profileRoute);
+app.use(chatRoute);
 
 
 

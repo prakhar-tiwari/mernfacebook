@@ -1,6 +1,7 @@
 import { GET_FEED, SUBMIT_POST, CREATE_COMMENT } from './Types';
 import axios from 'axios';
-;
+
+
 export const getFeed = (id) => dispatch => {
     axios.post('/getfeed', { userId: id })
         .then(result => {
@@ -58,8 +59,4 @@ export const createComment = (userId, postId, text) => {
             })
     }
 
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e

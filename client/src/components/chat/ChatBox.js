@@ -106,7 +106,6 @@ class ChatBox extends Component {
             friendId: friend._id
         })
             .then(result => {
-                console.log(result);
                 this.setState({ allMessages: result.data });
             })
             .catch(err => {
@@ -128,7 +127,6 @@ class ChatBox extends Component {
                 reciever: friend._id
             })
                 .then(result => {
-                    console.log(result);
                     this.setState({ chatMessage: '' });
                 })
                 .catch(err => {

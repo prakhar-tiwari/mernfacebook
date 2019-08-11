@@ -64,7 +64,6 @@ const useStyles = theme => ({
     },
     actionIcons: {
         margin: theme.spacing(-0.5, 0.5),
-<<<<<<< HEAD
         color: '#385898',
     },
     takeAction: {
@@ -80,23 +79,6 @@ const useStyles = theme => ({
     createComment: {
         marginTop: theme.spacing(2)
     },
-=======
-        color:'#385898',
-    },
-    takeAction:{
-        margin: theme.spacing(-0.5, 0.5),
-        color:'#e9eaed'
-    },
-    likeResultIcon:{
-        margin: theme.spacing(-0.5, 0.5),
-    },
-    commentSection: {
-        marginTop: theme.spacing(1)
-    },
-    createComment: {
-        marginTop: theme.spacing(2)
-    },
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
     comments: {
         marginTop: theme.spacing(1)
     },
@@ -114,7 +96,6 @@ class Feed extends Component {
         this.props.getFeed(id);
     }
 
-<<<<<<< HEAD
     componentDidUpdate(prevProps) {
         if (prevProps.post.allPosts !== this.props.post.allPosts) {
             const { id } = this.props.auth.user;
@@ -122,8 +103,6 @@ class Feed extends Component {
         }
     }
 
-=======
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
     handleLike = (postId) => {
         const { id } = this.props.auth.user;
         this.props.likePost(postId, id);
@@ -142,11 +121,7 @@ class Feed extends Component {
                             <List className={classes.list}>
                                 <ListItem alignItems="flex-start">
                                     <ListItemAvatar>
-<<<<<<< HEAD
                                         <Avatar alt="Remy Sharp" src={'/' + post.createdBy.profileImage} />
-=======
-                                        <Avatar alt="Remy Sharp" src={'/'+post.createdBy.profileImage} />
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
                                     </ListItemAvatar>
                                     <ListItemText
                                         primary={post.createdBy.name}
@@ -160,11 +135,7 @@ class Feed extends Component {
                             </div>
                             <hr className={classes.divider} />
                             <div className={classes.actionsList}>
-<<<<<<< HEAD
                                 <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.find(l => l.user === user.id) ? classes.actionIcons : classes.takeAction} />Like</Typography>
-=======
-                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.find(l=> l.user === user.id)?classes.actionIcons:classes.takeAction} />Like</Typography>
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
                                 <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
                                 <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
                             </div>
@@ -174,15 +145,9 @@ class Feed extends Component {
                                     <CreateComment postId={post._id} />
                                 </div>
                                 <div className={classes.comments}>
-<<<<<<< HEAD
                                     {(post.comments) ? post.comments.map(comment => (
                                         <Comments key={comment._id} comment={comment} />
                                     )) : null}
-=======
-                                    {(post.comments)?post.comments.map(comment=>(
-                                        <Comments key={comment._id} comment={comment} />
-                                    )):null}
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
                                 </div>
                             </div>
                         </Paper>

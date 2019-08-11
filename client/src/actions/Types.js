@@ -4,9 +4,5 @@ export const GET_FEED="GET_FEED";
 export const GET_TIMELINE_FEED="GET_TIMELINE_FEED";
 export const SUBMIT_POST="SUBMIT_POST";
 export const GET_FRIENDS="GET_FRIENDS";
-<<<<<<< HEAD
 export const SET_TIMELINE_USER="SET_TIMELINE_USER";
 export const CREATE_COMMENT="CREATE_COMMENT";
-=======
-export const SET_TIMELINE_USER="SET_TIMELINE_USER";
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
