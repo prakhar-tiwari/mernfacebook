@@ -52,4 +52,8 @@ exports.getChat = (req, res, next) => {
         let allMessages=[...senderChat,...result];
         return res.status(200).json(allMessages);
     })
+    .catch(err=>{
+        console.log(err);
+        return res.status(500).json(err);
+    })
 }
