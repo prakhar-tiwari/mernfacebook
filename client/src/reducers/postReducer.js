@@ -43,4 +43,8 @@ const postReducer = (state = initialState, action) => {
     }
 }
 
+<<<<<<< HEAD
 export default postReducer;
+=======
+export default postReducer;
+>>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e

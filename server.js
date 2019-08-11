@@ -42,7 +42,6 @@ const filter=(req,file,cb)=>{
 
 app.use(multer({storage:fileStorage,fileFilter:filter}).array('fileImages'));
 
-
 // api
 app.use(authRoute);
 app.use(postRoute);
