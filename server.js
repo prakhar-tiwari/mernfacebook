@@ -8,16 +8,8 @@ const app=express();
 const authRoute=require('./routes/auth');
 const postRoute=require('./routes/postRoute');
 const profileRoute=require('./routes/profileRoute');
+const chatRoute=require('./routes/chatRoute');
 
-mongoose.connect('mongodb+srv://prakhar:admin@cluster0-qejpw.mongodb.net/socialmedia',{
-    useNewUrlParser:true
-})
-.then(result=>{
-    console.log("mongodb connected");
-})
-.catch(err=>{
-    console.log(err);
-})
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -57,6 +49,7 @@ app.use(multer({storage:fileStorage,fileFilter:filter}).array('fileImages'));
 app.use(authRoute);
 app.use(postRoute);
 app.use(profileRoute);
+app.use(chatRoute);
 
 
 
@@ -71,6 +64,17 @@ if(process.env.NODE_ENV == 'production'){
 }
 
 
-app.listen(port,()=>{
-    console.log("server listening on port "+port);
+mongoose.connect('mongodb+srv://prakhar:admin@cluster0-qejpw.mongodb.net/socialmedia',{
+    useNewUrlParser:true
 })
+.then(result=>{
+    console.log("mongodb connected");
+    const server=app.listen(port);
+    const io=require('./socket').init(server);
+    io.on('connection',socket=>{
+        console.log('client connected',socket.id);
+    })
+})
+.catch(err=>{
+    console.log(err);
+});

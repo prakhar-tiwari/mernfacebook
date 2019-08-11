@@ -2,7 +2,8 @@ import {SET_TIMELINE_USER, GET_FRIENDS} from '../actions/Types';
 
 const initialState={
     timeLineUser:[],
-    friends:[]
+    friends:[],
+    socket:null
 }
 
 const profileReducer=(state=initialState,action)=>{
@@ -17,6 +18,12 @@ const profileReducer=(state=initialState,action)=>{
             return{
                 ...state,
                 friends:action.payload
+            }
+
+        case 'SOCKET_CONNECT':
+            return{
+                ...state,
+                socket:action.payload
             }
 
         default: return state

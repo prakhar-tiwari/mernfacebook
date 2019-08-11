@@ -5,6 +5,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import Input from '@material-ui/core/Input';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
+import { connect } from 'react-redux';
+import axios from 'axios';
+import io from 'socket.io-client';
 
 const useStyles = theme => ({
     chatBoxMain: {
@@ -61,8 +64,8 @@ const useStyles = theme => ({
             background: '#e2e2e2',
             borderRadius: '45px',
             padding: '0 16px',
-            fontSize:'15px',
-            lineHeight:'1.2em'
+            fontSize: '15px',
+            lineHeight: '1.2em'
         }
     },
     msgRight: {
@@ -70,7 +73,7 @@ const useStyles = theme => ({
         minHeight: '10px',
         wordBreak: 'break-all',
         marginBottom: '15%',
-        marginLeft:'50%',
+        marginLeft: '50%',
         textAlign: 'left',
         maxWidth: '50%',
         color: '#fff',
@@ -79,8 +82,8 @@ const useStyles = theme => ({
             background: '#2072f7',
             borderRadius: '45px',
             padding: '0 16px',
-            fontSize:'15px',
-            lineHeight:'1.2em'
+            fontSize: '15px',
+            lineHeight: '1.2em'
         }
     }
 })
@@ -89,52 +92,97 @@ class ChatBox extends Component {
     constructor() {
         super();
         this.state = {
-            open: false
+            open: false,
+            chatMessage: '',
+            allMessages: []
         };
+    }
+
+    componentDidMount() {
+        const { user } = this.props.auth;
+        const friend = this.props.friend.user;
+        axios.post('/getchat', {
+            userId: user.id,
+            friendId: friend._id
+        })
+            .then(result => {
+                console.log(result);
+                this.setState({ allMessages: result.data });
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     handleOpen = () => {
         this.setState({ open: true })
     }
 
+    sendMessage = (event) => {
+        const { user } = this.props.auth;
+        const friend = this.props.friend.user;
+        if (event.key === 'Enter' && this.state.chatMessage.length > 0) {
+            axios.post('/sendmessage', {
+                message: this.state.chatMessage,
+                sender: user.id,
+                reciever: friend._id
+            })
+                .then(result => {
+                    console.log(result);
+                    this.setState({ chatMessage: '' });
+                })
+                .catch(err => {
+                    console.log(err);
+                    this.setState({ chatMessage: '' });
+                })
+        }
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        if (nextState.allMessages !== this.state.allMessages) {
+            this.props.profile.socket.once('chat message', result => {
+                var updatedMessages = [...this.state.allMessages];
+                this.setState({ allMessages: updatedMessages.concat(result) });
+            })
+        }
+    }
+
     render() {
         const { classes } = this.props;
+        const { user } = this.props.friend;
+        const userId = this.props.auth.user.id;
+        let sortedMessages = (this.state.allMessages) ? this.state.allMessages.sort((a, b) => a.createdAt < b.createdAt ? -1 : 1) : [];
+
 
         return (
             <div className={classes.chatBoxMain}>
                 <div className={classes.topBar}>
                     <div className={classes.userInfo}>
-                        <Avatar alt="Batman" src="images/Batman.jpg" />
-                        <Typography component="p">Batman</Typography>
+                        <Avatar alt="Batman" src={(user.profileImage) ? '/' + user.profileImage : '/images/blank.png'} />
+                        <Typography component="p">{user.name}</Typography>
                     </div>
                     <div><CloseIcon className={classes.close} onClick={this.props.click.bind(this)} /></div>
                 </div>
                 <Paper className={classes.chatBox}>
                     <div className={classes.chatWindow}>
-                        <div className={classes.msgLeft}>
-                            <Typography component="p">Hi</Typography>
-                        </div>
-                        <div className={classes.msgRight}>
-                            <Typography component="p">Lorem ihjkbsum ihgadk kahgdkfa chgasjd jasg anbs dhiuuh</Typography>
-                        </div>
-                        <div className={classes.msgLeft}>
-                            <Typography component="p">Lorem ihjkbsum ihgadk kahgdkfa chgasjd jasg anbs dhiuuh</Typography>
-                        </div>
-                        <div className={classes.msgRight}>
-                            <Typography component="p">Hi</Typography>
-                        </div>
-                        <div className={classes.msgRight}>
-                            <Typography component="p">Lorem ihjkbsum ihgadk kahgdkfa chgasjd jasg anbs dhiuuh</Typography>
-                        </div>
-                        <div className={classes.msgLeft}>
-                            <Typography component="p">Hi</Typography>
-                        </div>
+                        {sortedMessages.map(message => (
+                            (message.from._id === userId) ?
+                                <div key={message._id} className={classes.msgRight}>
+                                    <Typography component="p">{message.message}</Typography>
+                                </div> :
+                                <div key={message._id} className={classes.msgLeft}>
+                                    <Typography component="p">{message.message}</Typography>
+                                </div>
+                        ))}
                     </div>
                     <div className={classes.sendMessageFooter}>
                         <Input className={classes.textBox}
                             placeholder="Enter you message..."
                             fullWidth
                             disableUnderline={true}
+                            onChange={(e) => this.setState({ chatMessage: e.target.value })}
+                            onKeyPress={this.sendMessage}
+                            value={this.state.chatMessage}
                         />
                     </div>
                 </Paper>
@@ -143,4 +191,9 @@ class ChatBox extends Component {
     }
 }
 
-export default withStyles(useStyles)(ChatBox);
+const mapStateToProps = state => ({
+    auth: state.auth,
+    profile: state.profile
+})
+
+export default connect(mapStateToProps)(withStyles(useStyles)(ChatBox));

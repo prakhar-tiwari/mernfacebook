@@ -43,7 +43,8 @@ class UserList extends Component {
         super(props);
         this.state = {
             open: false,
-            friendsList:[]
+            friendsList:[],
+            friend:null
         }
     }
 
@@ -58,8 +59,8 @@ class UserList extends Component {
         })
     }
 
-    openModal = () => {
-        this.setState({ open: true });
+    openModal = (friend) => {
+        this.setState({ open: true,friend:friend });
     }
 
     closeModal = () => {
@@ -75,9 +76,9 @@ class UserList extends Component {
                     <Typography className={classes.contactsHeader}>Contacts</Typography>
                     <List component="nav" aria-label="Secondary mailbox folders">
                         {(friendsList)?friendsList.map(friend=>(
-                            <ListItem key={friend.user._id} button onClick={this.openModal}>
+                            <ListItem key={friend.user._id} button onClick={()=>this.openModal(friend)}>
                             <ListItemAvatar>
-                                <Avatar alt="Remy Sharp" src={'/'+friend.user.profileImage} />
+                                <Avatar alt="Remy Sharp" src={(friend.user.profileImage)?'/'+friend.user.profileImage:'/images/blank.png'} />
                             </ListItemAvatar>
                             <ListItemText primary={friend.user.name} />
                             {/* <Badge color="primary" variant="dot"></Badge> */}
@@ -89,7 +90,7 @@ class UserList extends Component {
 
                 </Paper>
 
-                {(this.state.open)?<ChatBox click={this.closeModal} />:null}
+                {(this.state.open)?<ChatBox friend={this.state.friend} click={this.closeModal} />:null}
             </div>
         )
     }

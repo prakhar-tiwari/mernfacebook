@@ -46,6 +46,7 @@ function CreateComment(props) {
                     disableUnderline={true}
                     onChange={(e) => setCommentText(e.target.value)}
                     onKeyPress={(e) => handleCommentText(e)}
+                    value={commentText}
                 />
             </div>
         </div>
