@@ -68,13 +68,14 @@ export default function Photo(props) {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [image, setImage] = React.useState(null);
-    const [userName,setUserName]=React.useState('');
+    const [userName, setUserName] = React.useState('');
+    const { imageDetails, openPhoto } = props;
 
     React.useEffect(() => {
-        if (open !== props.openPhoto) {
-            setOpen(props.openPhoto);
-            setImage(props.imageDetails);
-            setUserName(props.post.createdBy.name);
+        if (open !== openPhoto) {
+            setOpen(openPhoto);
+            setImage('/'+imageDetails.image);
+            setUserName(imageDetails.createdBy);
         }
     })
 
@@ -104,7 +105,7 @@ export default function Photo(props) {
                     <div className={classes.aboutImage}>
                         <ListItem alignItems="flex-start">
                             <ListItemAvatar>
-                                <Avatar alt="Remy Sharp" src="images/flash.jpg" />
+                                <Avatar alt="Remy Sharp" src={(imageDetails.profileImage)?'/'+imageDetails.profileImage:'/images/blank.png'} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={userName}
@@ -115,8 +116,10 @@ export default function Photo(props) {
                             <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} color="secondary" />Comment</Typography>
                             <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} color="primary" />Share</Typography>
                         </Paper>
-                        <Comments/>
-                        <CreateComment />
+                        {(imageDetails.comments) ? imageDetails.comments.map(comment => (
+                            <Comments key={comment._id} comment={comment} />
+                        )) : null}
+                        <CreateComment postId={imageDetails._id} />
                     </div>
                 </div>
             </Dialog>

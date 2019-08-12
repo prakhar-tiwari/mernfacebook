@@ -77,9 +77,22 @@ function SinglePost(props) {
     const otherTags = tags.slice(1);
 
 
-    function onPhotoClick(image) {
+    function onPhotoClick(imagePost,imageId) {
         setOpenPhoto(true);
-        setImageDetails(image);
+        const picPost=imagePost.images.map(image=>{
+            if(image._id === imageId){
+                return {
+                    _id: imagePost._id,
+                    image: image.imageUrl,
+                    createdBy: imagePost.createdBy.name,
+                    comments: imagePost.comments,
+                    like: imagePost.like,
+                    profileImage: imagePost.createdBy.profileImage,
+                    userName: imagePost.createdBy.eventuserName
+                }
+            }
+        });
+        setImageDetails(picPost[0]);
     }
 
     const handleTagPopper = (event) => {
@@ -141,13 +154,13 @@ function SinglePost(props) {
                 <GridList cellHeight={200} className={classes.gridList}>
                     {imageUrls.map(image => (
                         <GridListTile cols={image.featured ? 2 : 1} rows={image.featured ? 2 : 1} key={image._id}>
-                            <img onClick={() => onPhotoClick('/'+image.imageUrl)} src={'/'+image.imageUrl} />
+                            <img onClick={() => onPhotoClick(post,image._id)} src={'/'+image.imageUrl} />
                         </GridListTile>
                     ))}
                 </GridList>
-                <Photo openPhoto={openPhoto} post={post} imageDetails={imageDetails} onclose={() => {
+                {(openPhoto)?<Photo openPhoto={openPhoto} imageDetails={imageDetails} onclose={() => {
                     setOpenPhoto(false)
-                }} />
+                }} /> :null}
             </div>
         </div>
     )

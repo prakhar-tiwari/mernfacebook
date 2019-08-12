@@ -1,4 +1,4 @@
-import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED, CREATE_COMMENT } from '../actions/Types';
+import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED, CREATE_COMMENT, LIKE_COMMENT } from '../actions/Types';
 
 const initialState = {
     allPosts: [],
@@ -36,6 +36,20 @@ const postReducer = (state = initialState, action) => {
                 ...state,
                 allPosts:posts
             }
+        }
+
+        case LIKE_COMMENT:{
+            const posts=[...state.allPosts];
+            posts.find(post=>{
+                if(post._id === action.payload._id){
+                    post.like=[...action.payload.like]
+                }
+            });
+            return{
+                ...state,
+                allPosts:posts
+            }
+
         }
 
         default:

@@ -97,10 +97,10 @@ class Feed extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.post.allPosts !== this.props.post.allPosts) {
-            const { id } = this.props.auth.user;
-            this.props.getFeed(id);
-        }
+        // if (prevProps.post.allPosts !== this.props.post.allPosts) {
+        //     const { id } = this.props.auth.user;
+        //     this.props.getFeed(id);
+        // }
     }
 
     handleLike = (postId) => {
@@ -131,11 +131,11 @@ class Feed extends Component {
                             <SinglePost post={post} />
                             <div className={classes.actionsResult}>
                                 <Typography className={classes.actionsResultItem}><LikeIcon className={classes.likeResultIcon} color="primary" /></Typography>
-                                <Typography className={classes.actionsResultItem}>{(post.like.length > 0) ? post.like.length : 0}</Typography>
+                                <Typography className={classes.actionsResultItem}>{(post.like) ? post.like.length : 0}</Typography>
                             </div>
                             <hr className={classes.divider} />
                             <div className={classes.actionsList}>
-                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.find(l => l.user === user.id) ? classes.actionIcons : classes.takeAction} />Like</Typography>
+                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={(post.like && post.like.find(l=> l.user === user.id)) ? classes.actionIcons : classes.takeAction} />Like</Typography>
                                 <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
                                 <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
                             </div>

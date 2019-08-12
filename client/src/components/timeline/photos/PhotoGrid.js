@@ -17,12 +17,12 @@ const useStyles = makeStyles(theme => ({
         padding: theme.spacing(3, 2),
     },
     titleBar: {
-        "& ul,& ul li":{
-            margin:0,
-            padding:0
+        "& ul,& ul li": {
+            margin: 0,
+            padding: 0
         },
-        "& ul li span":{
-            fontSize:'20px'
+        "& ul li span": {
+            fontSize: '20px'
         }
     },
     pictureGrid: {
@@ -34,29 +34,47 @@ const useStyles = makeStyles(theme => ({
     },
     gridList: {
         height: 450,
-        "& img":{
-            cursor:'pointer'
+        "& img": {
+            cursor: 'pointer'
         }
     },
     icon: {
         color: 'rgba(255, 255, 255, 0.54)',
     },
-    photoAvatar:{
+    photoAvatar: {
         margin: 10,
         color: '#fff',
         backgroundColor: green[500],
     }
 }))
 
-export default function PhotoGrid() {
+export default function PhotoGrid(props) {
     const classes = useStyles();
-    const [openPhoto,setOpenPhoto]=React.useState(false);
-    const [imageDetails,setImageDetails]=React.useState(null);
+    const [openPhoto, setOpenPhoto] = React.useState(false);
+    const [imageDetails, setImageDetails] = React.useState(null);
+    const [post, setPost] = React.useState(null);
+    const { posts } = props;
 
-    function onPhotoClick(image){
+    function onPhotoClick(image) {
         setOpenPhoto(true);
         setImageDetails(image);
     }
+
+    const picturePost = posts.filter(post => post.images.length > 0)
+        .map(post => {
+            return post.images.map(image => {
+                return {
+                    _id: post._id,
+                    image: image.imageUrl,
+                    createdBy: post.createdBy,
+                    comments: post.comments,
+                    like: post.like,
+                    profileImage: post.profileImage,
+                    userName: post.userName
+                }
+            })
+        }).flat(1);
+
     return (
         <div>
             <Paper className={classes.photoGrid}>
@@ -72,15 +90,15 @@ export default function PhotoGrid() {
                 </div>
                 <div className={classes.pictureGrid}>
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
-                        {tileData.map(tile => (
-                            <GridListTile key={tile.img} cols={tile.cols || 1}>
-                                <img onClick={()=>onPhotoClick(tile.img)} src={'/'+tile.img} alt={tile.title} />
+                        {picturePost.map(post => (
+                            <GridListTile key={post._id} cols={1}>
+                                <img onClick={() => onPhotoClick(post)} src={'/' + post.image} />
                             </GridListTile>
                         ))}
                     </GridList>
-                    <Photo openPhoto={openPhoto} imageDetails={imageDetails} onclose={()=>{
+                    {(openPhoto) ? <Photo openPhoto={openPhoto} imageDetails={imageDetails} onclose={() => {
                         setOpenPhoto(false)
-                    }}/>
+                    }} /> : null}
                 </div>
             </Paper>
         </div>

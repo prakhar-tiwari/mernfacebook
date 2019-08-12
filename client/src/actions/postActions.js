@@ -1,4 +1,4 @@
-import { GET_FEED, SUBMIT_POST, CREATE_COMMENT } from './Types';
+import { GET_FEED, SUBMIT_POST, CREATE_COMMENT,LIKE_COMMENT } from './Types';
 import axios from 'axios';
 
 
@@ -34,7 +34,10 @@ export const likePost = (postId, id) => dispatch => {
         userId: id
     })
         .then(result => {
-            dispatch(getFeed(id))
+            dispatch({
+                type:LIKE_COMMENT,
+                payload:result.data
+            })
         })
         .catch(err => {
             console.log(err);
