@@ -15,7 +15,7 @@ import Comments from './comments/Comments';
 import CreateComment from './comments/CreateComment';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { getFeed, likePost } from '../../actions/postActions';
+import { getFeed, likePost, clearAllPosts } from '../../actions/postActions';
 
 const useStyles = theme => ({
     root: {
@@ -96,16 +96,13 @@ class Feed extends Component {
         this.props.getFeed(id);
     }
 
-    componentDidUpdate(prevProps) {
-        // if (prevProps.post.allPosts !== this.props.post.allPosts) {
-        //     const { id } = this.props.auth.user;
-        //     this.props.getFeed(id);
-        // }
-    }
-
     handleLike = (postId) => {
         const { id } = this.props.auth.user;
         this.props.likePost(postId, id);
+    }
+
+    componentWillUnmount() {
+        this.props.clearAllPosts();
     }
 
 
@@ -135,7 +132,7 @@ class Feed extends Component {
                             </div>
                             <hr className={classes.divider} />
                             <div className={classes.actionsList}>
-                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={(post.like && post.like.find(l=> l.user === user.id)) ? classes.actionIcons : classes.takeAction} />Like</Typography>
+                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={(post.like && post.like.find(l => l.user === user.id)) ? classes.actionIcons : classes.takeAction} />Like</Typography>
                                 <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
                                 <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
                             </div>
@@ -164,4 +161,4 @@ const mapStateToProps = state => ({
     post: state.post
 })
 
-export default connect(mapStateToProps, { getFeed, likePost })(withStyles(useStyles)(Feed));
+export default connect(mapStateToProps, { getFeed, likePost,clearAllPosts })(withStyles(useStyles)(Feed));

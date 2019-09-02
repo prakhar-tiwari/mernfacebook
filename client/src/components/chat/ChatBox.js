@@ -94,11 +94,13 @@ class ChatBox extends Component {
         this.state = {
             open: false,
             chatMessage: '',
-            allMessages: []
+            allMessages: [],
+            socket:null
         };
     }
 
     componentDidMount() {
+        this.initSocket();
         const { user } = this.props.auth;
         const friend = this.props.friend.user;
         axios.post('/getchat', {
@@ -111,6 +113,11 @@ class ChatBox extends Component {
             .catch(err => {
                 console.log(err);
             })
+    }
+
+    initSocket=()=>{
+        const socket=io('/');
+        this.setState({socket:socket})
     }
 
     handleOpen = () => {
@@ -138,7 +145,7 @@ class ChatBox extends Component {
 
     componentWillUpdate(nextProps, nextState) {
         if (nextState.allMessages !== this.state.allMessages) {
-            this.props.profile.socket.once('chat message', result => {
+            this.state.socket.once('chat message', result => {
                 var updatedMessages = [...this.state.allMessages];
                 this.setState({ allMessages: updatedMessages.concat(result) });
             })

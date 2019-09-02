@@ -16,14 +16,13 @@ import HomeIcon from '@material-ui/icons/Home';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import { Link, NavLink, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '../actions/authActions';
 import SearchBox from './SearchBox';
 import PersonIcon from '@material-ui/icons/PersonRounded';
 import { Popper, Paper } from '@material-ui/core';
 import axios from 'axios';
-import Button from '@material-ui/core/Button';
 
 const useStyles = theme => ({
     grow: {

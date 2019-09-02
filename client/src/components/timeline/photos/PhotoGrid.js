@@ -9,7 +9,6 @@ import ListItem from '@material-ui/core/ListItem';
 import Avatar from '@material-ui/core/Avatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import { green } from '@material-ui/core/colors';
-import tileData from '../friends/tileData';
 import Photo from './Photo';
 
 const useStyles = makeStyles(theme => ({
@@ -52,7 +51,6 @@ export default function PhotoGrid(props) {
     const classes = useStyles();
     const [openPhoto, setOpenPhoto] = React.useState(false);
     const [imageDetails, setImageDetails] = React.useState(null);
-    const [post, setPost] = React.useState(null);
     const { posts } = props;
 
     function onPhotoClick(image) {

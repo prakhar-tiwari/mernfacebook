@@ -96,10 +96,10 @@ function Login(props) {
     useEffect(()=>{
         const {isAuthenticated} = props.auth;
         if(isAuthenticated){
-            props.history.replace('/')
+            props.history.replace('/');
         }
         else{
-            props.history.replace('/auth')
+            props.history.replace('/auth');
         }
     },[props.auth.isAuthenticated])
 

@@ -1,4 +1,4 @@
-import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED, CREATE_COMMENT, LIKE_COMMENT } from '../actions/Types';
+import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED, CREATE_COMMENT, LIKE_COMMENT,CLEAR_POSTS } from '../actions/Types';
 
 const initialState = {
     allPosts: [],
@@ -50,6 +50,13 @@ const postReducer = (state = initialState, action) => {
                 allPosts:posts
             }
 
+        }
+
+        case CLEAR_POSTS:{
+            return{
+                ...state,
+                allPosts:action.payload
+            }
         }
 
         default:

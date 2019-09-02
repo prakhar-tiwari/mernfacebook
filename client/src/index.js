@@ -38,10 +38,10 @@ if (localStorage.getItem('token')) {
     try {
         var decodedToken = jwt.verify(token.substring(7), 'secret');
         store.dispatch(setCurrentUser(decodedToken));
-        store.dispatch({
-            type:'SOCKET_CONNECT',
-            payload:io('http://localhost:8080')
-        })
+        // store.dispatch({
+        //     type:'SOCKET_CONNECT',
+        //     payload:io('http://localhost:8080')
+        // })
     }
     catch (error) {
         store.dispatch(logout());

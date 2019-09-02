@@ -1,4 +1,4 @@
-import { GET_FEED, SUBMIT_POST, CREATE_COMMENT,LIKE_COMMENT } from './Types';
+import { GET_FEED, SUBMIT_POST, CLEAR_POSTS, CREATE_COMMENT, LIKE_COMMENT } from './Types';
 import axios from 'axios';
 
 
@@ -35,8 +35,8 @@ export const likePost = (postId, id) => dispatch => {
     })
         .then(result => {
             dispatch({
-                type:LIKE_COMMENT,
-                payload:result.data
+                type: LIKE_COMMENT,
+                payload: result.data
             })
         })
         .catch(err => {
@@ -53,8 +53,8 @@ export const createComment = (userId, postId, text) => {
         })
             .then(result => {
                 dispatch({
-                    type:CREATE_COMMENT,
-                    payload:result.data[0]
+                    type: CREATE_COMMENT,
+                    payload: result.data[0]
                 })
             })
             .catch(err => {
@@ -62,4 +62,11 @@ export const createComment = (userId, postId, text) => {
             })
     }
 
+}
+
+export const clearAllPosts = () => dispatch => {
+    dispatch({
+        type: CLEAR_POSTS,
+        payload: []
+    })
 }

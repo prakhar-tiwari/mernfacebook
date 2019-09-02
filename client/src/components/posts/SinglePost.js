@@ -26,7 +26,8 @@ const useStyles = makeStyles(theme => ({
         // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
         transform: 'translateZ(0)',
         "& img": {
-            backgroundPosition: 'initial'
+            backgroundPosition: 'initial',
+            cursor:'pointer'
         }
     },
     images: {
@@ -79,20 +80,22 @@ function SinglePost(props) {
 
     function onPhotoClick(imagePost,imageId) {
         setOpenPhoto(true);
-        const picPost=imagePost.images.map(image=>{
+        let picPost;
+        imagePost.images.find(image=>{
             if(image._id === imageId){
-                return {
+                picPost= {
                     _id: imagePost._id,
                     image: image.imageUrl,
-                    createdBy: imagePost.createdBy.name,
+                    createdBy: imagePost.createdBy,
                     comments: imagePost.comments,
                     like: imagePost.like,
-                    profileImage: imagePost.createdBy.profileImage,
-                    userName: imagePost.createdBy.eventuserName
+                    profileImage: imagePost.profileImage,
+                    userName: imagePost.userName
                 }
             }
         });
-        setImageDetails(picPost[0]);
+        console.log(picPost)
+        setImageDetails(picPost);
     }
 
     const handleTagPopper = (event) => {
