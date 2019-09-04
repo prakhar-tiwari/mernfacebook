@@ -1,4 +1,4 @@
-import { SET_PROFILE_IMAGE, SET_TIMELINE_USER, GET_FEED, GET_FRIENDS,GET_TIMELINE_FEED } from './Types';
+import { SET_PROFILE_IMAGE, SET_TIMELINE_USER, GET_FEED, GET_FRIENDS, GET_TIMELINE_FEED } from './Types';
 import axios from 'axios';
 
 export const uploadPhoto = (formData, userName) => dispatch => {
@@ -42,23 +42,29 @@ export const setTimeLineUser = (userName, authUserName) => dispatch => {
             });
             const posts = [...resultData.posts];
             const userPosts = posts.map(userPost => {
-                userPost.createdBy = resultData.name;
-                userPost.profileImage = resultData.profileImage;
-                userPost.userName = resultData.userName;
+                userPost.createdBy = {
+                    _id:resultData._id,
+                    name: resultData.name,
+                    profileImage: resultData.profileImage,
+                    userName: resultData.userName
+                };
                 return userPost;
             })
             const friendsWithPosts = resultData.friends.filter(friend => friend.posts.length > 0);
             const friendsPosts = friendsWithPosts.map(friendPost => {
                 return friendPost.posts.map(post => {
-                    post.createdBy = friendPost.user.name;
-                    post.profileImage = friendPost.user.profileImage;
-                    post.userName = friendPost.user.userName;
+                    post.createdBy = {
+                        _id:friendPost.user._id,
+                        name: friendPost.user.name,
+                        profileImage: friendPost.user.profileImage,
+                        userName: friendPost.user.userName
+                    };
                     return post;
                 })
             }).flat(1);
             const allPosts = [...userPosts, ...friendsPosts];
             dispatch({
-                type: GET_TIMELINE_FEED,
+                type: GET_FEED,
                 payload: allPosts
             });
 

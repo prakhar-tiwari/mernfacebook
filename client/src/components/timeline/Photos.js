@@ -72,8 +72,8 @@ class Photos extends Component {
     render() {
         const { classes } = this.props;
         const { user } = this.props.auth;
-        const { timeLinePosts } = this.props.post;
-        const picturePost = timeLinePosts.filter(post => post.images.length > 0)
+        const { allPosts } = this.props.post;
+        const picturePost = allPosts.filter(post => post.images.length > 0)
         .map(post => {
             return post.images.map(image => {
                 return {

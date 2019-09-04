@@ -75,7 +75,7 @@ export default function Photo(props) {
         if (open !== openPhoto) {
             setOpen(openPhoto);
             setImage('/'+imageDetails.image);
-            setUserName(imageDetails.createdBy);
+            setUserName(imageDetails.createdBy.name);
         }
     })
 
@@ -105,7 +105,7 @@ export default function Photo(props) {
                     <div className={classes.aboutImage}>
                         <ListItem alignItems="flex-start">
                             <ListItemAvatar>
-                                <Avatar alt="Remy Sharp" src={(imageDetails.profileImage)?'/'+imageDetails.profileImage:'/images/blank.png'} />
+                                <Avatar alt="Remy Sharp" src={(imageDetails.createdBy.profileImage)?'/'+imageDetails.createdBy.profileImage:'/images/blank.png'} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={userName}

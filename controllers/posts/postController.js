@@ -55,7 +55,6 @@ exports.getFeed = (req, res, next) => {
                             _id:'$_id',
                             'user':{
                                 $first:{
-                                    _id:'$_id',
                                     name:'$name',
                                     userName:'$userName',
                                     profileImage:'$profileImage'

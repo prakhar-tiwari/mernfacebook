@@ -94,7 +94,6 @@ function SinglePost(props) {
                 }
             }
         });
-        console.log(picPost)
         setImageDetails(picPost);
     }
 

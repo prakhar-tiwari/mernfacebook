@@ -23,8 +23,8 @@ class App extends Component {
           <Switch>
             <Route path="/auth" component={Auth} />
             <Grid container>
-              <PrivateRoute exact path="/" component={HomePage} />
               <PrivateRoute path="/:userName" component={TimeLinePage} />
+              <PrivateRoute exact path="/" component={HomePage} />
             </Grid>
           </Switch>
         </div>

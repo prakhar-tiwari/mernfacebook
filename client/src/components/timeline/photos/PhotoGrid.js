@@ -89,7 +89,7 @@ export default function PhotoGrid(props) {
                 <div className={classes.pictureGrid}>
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
                         {picturePost.map(post => (
-                            <GridListTile key={post._id} cols={1}>
+                            <GridListTile key={post._id+'-'+post.image} cols={1}>
                                 <img onClick={() => onPhotoClick(post)} src={'/' + post.image} />
                             </GridListTile>
                         ))}

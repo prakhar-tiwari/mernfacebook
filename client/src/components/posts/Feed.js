@@ -15,7 +15,7 @@ import Comments from './comments/Comments';
 import CreateComment from './comments/CreateComment';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { getFeed, likePost, clearAllPosts } from '../../actions/postActions';
+import { getFeed, likePost } from '../../actions/postActions';
 
 const useStyles = theme => ({
     root: {
@@ -101,10 +101,6 @@ class Feed extends Component {
         this.props.likePost(postId, id);
     }
 
-    componentWillUnmount() {
-        this.props.clearAllPosts();
-    }
-
 
     render() {
         const { classes } = this.props;
@@ -161,4 +157,4 @@ const mapStateToProps = state => ({
     post: state.post
 })
 
-export default connect(mapStateToProps, { getFeed, likePost,clearAllPosts })(withStyles(useStyles)(Feed));
+export default connect(mapStateToProps, { getFeed, likePost })(withStyles(useStyles)(Feed));

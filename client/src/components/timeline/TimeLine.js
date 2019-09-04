@@ -263,7 +263,7 @@ class TimeLine extends Component {
     render() {
         const { classes } = this.props;
         const { user } = this.props.auth;
-        const allPosts = this.props.post.timeLinePosts;
+        const allPosts = this.props.post.allPosts;
         const { friends } = this.props.profile;
         return (
             <div className={classes.pageDetails} >
@@ -289,14 +289,14 @@ class TimeLine extends Component {
                                 <CreatePost />
                             </div>
                             {allPosts.length > 0 ? allPosts.map(post => (
-                                <Paper key={`timeline/${post._id}`} className={classes.postItems}>
+                                <Paper key={post._id} className={classes.postItems}>
                                     <List className={classes.list}>
                                         <ListItem alignItems="flex-start">
                                             <ListItemAvatar>
-                                                <Avatar alt="Remy Sharp" src={'/' + post.profileImage} />
+                                                <Avatar alt="Remy Sharp" src={'/' + post.createdBy.profileImage} />
                                             </ListItemAvatar>
                                             <ListItemText
-                                                primary={post.createdBy}
+                                                primary={post.createdBy.name}
                                             />
                                         </ListItem >
                                     </List>
