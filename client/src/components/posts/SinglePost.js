@@ -5,7 +5,6 @@ import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import Photo from '../timeline/photos/Photo';
 import Popper from '@material-ui/core/Popper';
-import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles(theme => ({
     postDescription: {

@@ -41,19 +41,6 @@ const useStyles = makeStyles(theme => ({
 })
 )
 
-const suggestions = [
-    { label: 'Afghanistan' },
-    { label: 'Aland Islands' },
-    { label: 'Albania' },
-    { label: 'Algeria' },
-    { label: 'American Samoa' },
-    { label: 'Andorra' },
-    { label: 'Angola' },
-    { label: 'Anguilla' },
-    { label: 'Antarctica' },
-    { label: 'Antigua and Barbuda' },
-];
-
 function renderInput(inputProps) {
     const { InputProps, classes, ref, ...other } = inputProps;
   
@@ -132,7 +119,7 @@ function renderInput(inputProps) {
         userId:user.id,
         searchText:event.target.value
       };
-      axios.post('http://localhost:8080/getfriends',searchFriends)
+      axios.post('/getfriends',searchFriends)
       .then(result=>{
         setFriendSuggestions(result.data);
       })

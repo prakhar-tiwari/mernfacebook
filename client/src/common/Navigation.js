@@ -187,7 +187,6 @@ class Navigation extends Component {
                     })
                 })
                 .catch(err => {
-                    console.log(err);
                 })
         }
     }
@@ -302,7 +301,7 @@ class Navigation extends Component {
                     }
                 })}>
                     <ListItemAvatar>
-                        <Avatar alt="Remy Sharp" src={'/' + user.profileImage} />
+                        <Avatar src={(user.profileImage)?'/' + user.profileImage:'/images/blank.png'} />
                     </ListItemAvatar>
                     <ListItemText primary={this.state.userName} />
                 </MenuItem>
@@ -371,7 +370,7 @@ class Navigation extends Component {
                                 }
                             })}>
                                 <ListItemAvatar>
-                                    <Avatar alt="Remy Sharp" src={'/' + user.profileImage} />
+                                    <Avatar src={(user.profileImage)?'/' + user.profileImage:'/images/blank.png'} />
                                 </ListItemAvatar>
                                 <ListItemText primary={this.state.userName} />
                             </MenuItem>

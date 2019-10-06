@@ -1,10 +1,7 @@
-import React,{useState} from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
-import InputBase from '@material-ui/core/InputBase';
-import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles(theme => ({
@@ -15,7 +12,7 @@ const useStyles = makeStyles(theme => ({
         width: 'auto',
     },
     gradient: {
-        background: 'linear-gradient(white, #D3D8E8)',
+        backgroundImage: 'linear-gradient(white, #D3D8E8)',
         minWidth: '980px'
     },
     signupContent: {
@@ -119,37 +116,50 @@ const useStyles = makeStyles(theme => ({
 export default function Signup() {
     const classes = useStyles();
 
-    const [firstName,setFirstName]=useState('');
-    const [lastName,setLastName]=useState('');
-    const [contactInfo,setContactInfo]=useState('');
-    const [password,setPassword]=useState('');
-    const [dayOfDOB,setDayOfDOB]=useState('');
-    const [monthOfDOB,setMonthOfDOB]=useState('');
-    const [yearOfDOB,setYearOfDOB]=useState('');
-    const [gender,setGender]=useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [contactInfo, setContactInfo] = useState('');
+    const [password, setPassword] = useState('');
+    const [dayOfDOB, setDayOfDOB] = useState('');
+    const [monthOfDOB, setMonthOfDOB] = useState('');
+    const [yearOfDOB, setYearOfDOB] = useState('');
+    const [gender, setGender] = useState('');
+    const [errors, setErrors] = useState({});
 
     const days = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const years = [2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006, 2005, 2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997, 1996, 1995, 1994, 1993, 1992, 1991, 1990, 1989, 1988, 1987, 1986, 1985, 1984, 1983, 1982, 1981, 1980, 1979, 1978, 1977, 1976, 1975, 1974, 1973, 1972, 1971, 1970, 1969, 1968, 1967, 1966, 1965, 1964, 1963, 1962, 1961, 1960, 1959, 1958, 1957, 1956, 1955, 1954, 1953, 1952, 1951, 1950, 1949, 1948, 1947, 1946, 1945, 1944, 1943, 1942, 1941, 1940, 1939, 1938, 1937, 1936, 1935, 1934, 1933, 1932, 1931, 1930, 1929, 1928, 1927, 1926, 1925, 1924, 1923, 1922, 1921, 1920, 1919, 1918, 1917, 1916, 1915, 1914, 1913, 1912, 1911, 1910, 1909, 1908, 1907, 1906, 1905];
 
-   const handleSubmit=(e)=>{
-       e.preventDefault();
-       const newUser={
-           name:firstName+' '+lastName,
-           contactInfo:contactInfo,
-           password:password,
-           dob:dayOfDOB+'/'+monthOfDOB+'/'+yearOfDOB,
-           gender:gender
-       };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const newUser = {
+            firstName: firstName,
+            lastName: lastName,
+            contactInfo: contactInfo,
+            password: password,
+            dob: dayOfDOB + '/' + monthOfDOB + '/' + yearOfDOB,
+            gender: gender
+        };
 
-       axios.post('http://localhost:8080/signup',newUser)
-       .then(result=>{
-           console.log(result)
-       })
-       .catch(err=>{
-           console.log(err)
-       })
-   }
+        axios.post('http://localhost:5000/signup', newUser)
+            .then(result => {
+                console.log(result)
+            })
+            .catch(err => {
+                let errors = {};
+                if (err.response.data.length > 0) {
+                    err.response.data.map(er => {
+                        if (er.nestedErrors) {
+                            errors[er.nestedErrors[0].param] = er.msg;
+                        }
+                        else {
+                            errors[er.param] = er.msg;
+                        }
+                    })
+                }
+                setErrors(errors);
+            })
+    }
 
     return (
         <div className={classes.contentClearFix}>
@@ -173,6 +183,8 @@ export default function Signup() {
                                     <TextField
                                         id="outlined-with-placeholder"
                                         label="First Name"
+                                        error={errors.firstName ? true : false}
+                                        helperText={errors.firstName}
                                         placeholder="Enter First Name"
                                         className={classes.textField}
                                         margin="normal"
@@ -185,12 +197,14 @@ export default function Signup() {
                                                 notchedOutline: classes.notchedOutline
                                             }
                                         }}
-                                        onChange={(e)=>setFirstName(e.target.value)}
+                                        onChange={(e) => setFirstName(e.target.value)}
                                     />
                                     <TextField
                                         id="outlined-with-placeholder"
                                         label="Last Name"
                                         placeholder="Enter Last Name"
+                                        error={errors.lastName ? true : false}
+                                        helperText={errors.lastName}
                                         className={classes.textField}
                                         margin="normal"
                                         variant="outlined"
@@ -202,13 +216,15 @@ export default function Signup() {
                                                 notchedOutline: classes.notchedOutline
                                             }
                                         }}
-                                        onChange={(e)=>setLastName(e.target.value)}
+                                        onChange={(e) => setLastName(e.target.value)}
                                     />
                                 </div>
                                 <TextField
                                     id="outlined-with-placeholder"
                                     label="Contact info"
                                     placeholder="Mobile number or email address"
+                                    error={errors.contactInfo ? true : false}
+                                    helperText={errors.contactInfo}
                                     className={classes.textField}
                                     margin="normal"
                                     variant="outlined"
@@ -221,13 +237,15 @@ export default function Signup() {
                                             notchedOutline: classes.notchedOutline
                                         }
                                     }}
-                                    onChange={(e)=>setContactInfo(e.target.value)}
+                                    onChange={(e) => setContactInfo(e.target.value)}
                                 />
                                 <TextField
                                     id="outlined-with-placeholder"
                                     type="password"
                                     label="Password"
                                     placeholder="Enter password"
+                                    error={errors.password ? true : false}
+                                    helperText={errors.password}
                                     className={classes.textField}
                                     margin="normal"
                                     variant="outlined"
@@ -240,26 +258,26 @@ export default function Signup() {
                                             notchedOutline: classes.notchedOutline
                                         }
                                     }}
-                                    onChange={(e)=>setPassword(e.target.value)}
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
 
                                 <div className={classes.birthday}>
                                     <div className={classes.birthdayText}>Birthday</div>
-                                    <select className={classes.dayOfDOB} name="dayOfDOB" id="" onChange={(e)=>setDayOfDOB(e.target.value)}>
+                                    <select className={classes.dayOfDOB} name="dayOfDOB" id="" onChange={(e) => setDayOfDOB(e.target.value)}>
                                         <option value="0">Day</option>
-                                        {days.map((day,index) => (
+                                        {days.map((day, index) => (
                                             <option key={index} value={day}>{day}</option>
                                         ))}
                                     </select>
-                                    <select className={classes.dayOfDOB} name="monthOfDOB" id="" onChange={(e)=>setMonthOfDOB(e.target.value)}>
+                                    <select className={classes.dayOfDOB} name="monthOfDOB" id="" onChange={(e) => setMonthOfDOB(e.target.value)}>
                                         <option value="0">Month</option>
-                                        {months.map((month,index) => (
-                                            <option key={index} value={index+1}>{month}</option>
+                                        {months.map((month, index) => (
+                                            <option key={index} value={index + 1}>{month}</option>
                                         ))}
                                     </select>
-                                    <select className={classes.dayOfDOB} name="yearofDOB" id="" onChange={(e)=>setYearOfDOB(e.target.value)}>
+                                    <select className={classes.dayOfDOB} name="yearofDOB" id="" onChange={(e) => setYearOfDOB(e.target.value)}>
                                         <option value="0">Year</option>
-                                        {years.map((year,index) => (
+                                        {years.map((year, index) => (
                                             <option key={index} value={year}>{year}</option>
                                         ))}
                                     </select>
@@ -267,17 +285,17 @@ export default function Signup() {
                                 <div className={classes.gender}>
                                     <div className={classes.genderText}>Gender</div>
                                     <span>
-                                        <input type="radio" name="gender" value="F" id="femaleradio" onChange={(e)=>setGender(e.target.value)} />
+                                        <input type="radio" name="gender" value="F" id="femaleradio" onChange={(e) => setGender(e.target.value)} />
                                         <label htmlFor="femaleradio">Female</label>
                                     </span>
 
                                     <span>
-                                        <input type="radio" name="gender" value="M" id="maleradio" onChange={(e)=>setGender(e.target.value)} />
+                                        <input type="radio" name="gender" value="M" id="maleradio" onChange={(e) => setGender(e.target.value)} />
                                         <label htmlFor="maleradio">Male</label>
                                     </span>
 
                                     <span>
-                                        <input type="radio" name="gender" value="Ot" id="femaleradio" onChange={(e)=>setGender(e.target.value)} />
+                                        <input type="radio" name="gender" value="Ot" id="otherRadio" onChange={(e) => setGender(e.target.value)} />
                                         <label htmlFor="femaleradio">Others</label>
                                     </span>
 

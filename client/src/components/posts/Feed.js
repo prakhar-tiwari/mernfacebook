@@ -14,7 +14,6 @@ import Typography from '@material-ui/core/Typography';
 import Comments from './comments/Comments';
 import CreateComment from './comments/CreateComment';
 import { connect } from 'react-redux';
-import axios from 'axios';
 import { getFeed, likePost } from '../../actions/postActions';
 
 const useStyles = theme => ({

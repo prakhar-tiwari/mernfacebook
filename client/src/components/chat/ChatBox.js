@@ -116,7 +116,7 @@ class ChatBox extends Component {
     }
 
     initSocket=()=>{
-        const socket=io('/');
+        const socket=io('localhost:5000');
         this.setState({socket:socket})
     }
 
@@ -144,11 +144,26 @@ class ChatBox extends Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
+        const { user } = nextProps.auth;
+        const friend = nextProps.friend.user;
         if (nextState.allMessages !== this.state.allMessages) {
             this.state.socket.once('chat message', result => {
                 var updatedMessages = [...this.state.allMessages];
                 this.setState({ allMessages: updatedMessages.concat(result) });
             })
+        }
+        if(this.props.friend.user !== nextProps.friend.user){
+            this.initSocket();
+            axios.post('/getchat', {
+                userId: user.id,
+                friendId: friend._id
+            })
+                .then(result => {
+                    this.setState({ allMessages: result.data });
+                })
+                .catch(err => {
+                    console.log(err);
+                })
         }
     }
 

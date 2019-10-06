@@ -1,12 +1,24 @@
 import React from 'react';
 import CreatePost from './CreatePost';
 import Feed from './Feed';
+import {makeStyles} from '@material-ui/core';
 
-export default function DashBoard() {
+const useStyles=makeStyles(theme=>({
+    root:{
+        marginTop:'20px',
+        minHeight:'520px'
+    }
+}));
+
+function DashBoard() {
+    const classes=useStyles();
+
     return (
-        <div style={{marginTop:'20px'}}>
+        <div className={classes.root} >
             <CreatePost/>
             <Feed/>
         </div>
     )
 }
+
+export default DashBoard;
