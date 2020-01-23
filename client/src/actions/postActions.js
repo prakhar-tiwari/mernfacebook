@@ -2,12 +2,15 @@ import { GET_FEED, SUBMIT_POST, CLEAR_POSTS, CREATE_COMMENT, LIKE_COMMENT } from
 import axios from 'axios';
 
 
-export const getFeed = (id) => dispatch => {
-    axios.post('/getfeed', { userId: id })
+export const getFeed = (id, start, count) => dispatch => {
+    axios.post('/getfeed', { userId: id, start, count })
         .then(result => {
             dispatch({
                 type: GET_FEED,
-                payload: result.data
+                payload: {
+                    data: result.data,
+                    hasMorePosts: (result.data.length) ? true : false
+                }
             })
         })
         .catch(err => {

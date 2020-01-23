@@ -43,7 +43,7 @@ export const setTimeLineUser = (userName, authUserName) => dispatch => {
             const posts = [...resultData.posts];
             const userPosts = posts.map(userPost => {
                 userPost.createdBy = {
-                    _id:resultData._id,
+                    _id: resultData._id,
                     name: resultData.name,
                     profileImage: resultData.profileImage,
                     userName: resultData.userName
@@ -54,7 +54,7 @@ export const setTimeLineUser = (userName, authUserName) => dispatch => {
             const friendsPosts = friendsWithPosts.map(friendPost => {
                 return friendPost.posts.map(post => {
                     post.createdBy = {
-                        _id:friendPost.user._id,
+                        _id: friendPost.user._id,
                         name: friendPost.user.name,
                         profileImage: friendPost.user.profileImage,
                         userName: friendPost.user.userName
@@ -65,7 +65,10 @@ export const setTimeLineUser = (userName, authUserName) => dispatch => {
             const allPosts = [...userPosts, ...friendsPosts];
             dispatch({
                 type: GET_FEED,
-                payload: allPosts
+                payload: {
+                    data: allPosts,
+                    hasMorePosts: (result.data.length) ? true : false
+                }
             });
 
             var friends = resultData.friends.map(friend => {

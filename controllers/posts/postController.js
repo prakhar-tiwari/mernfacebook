@@ -5,65 +5,65 @@ const ObjectId = require('mongoose').Types.ObjectId;
 
 
 exports.getFeed = (req, res, next) => {
-    const { userId } = req.body;
+    const { userId, start, count } = req.body;
     let userPosts = [];
     Post.aggregate([
         {
-            $match:{'createdBy':ObjectId(userId)}
+            $match: { 'createdBy': ObjectId(userId) }
         },
         {
-            $lookup:{
-                from:'users',
-                let:{userId:'$createdBy'},
-                pipeline:[
+            $lookup: {
+                from: 'users',
+                let: { userId: '$createdBy' },
+                pipeline: [
                     {
-                        $match:{
-                            $expr:{
-                                $eq:['$_id','$$userId']
+                        $match: {
+                            $expr: {
+                                $eq: ['$_id', '$$userId']
                             }
                         }
                     },
                     {
-                        $project:{
-                            _id:1,
-                            name:1,
-                            userName:1,
-                            profileImage:1
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            userName: 1,
+                            profileImage: 1
                         }
                     }
                 ],
-                as:'createdBy'
+                as: 'createdBy'
             }
         },
         {
-            $unwind:'$createdBy'
+            $unwind: '$createdBy'
         },
         {
-            $lookup:{
-                from:'users',
-                let:{userId:'$tags.user'},
-                pipeline:[
+            $lookup: {
+                from: 'users',
+                let: { userId: '$tags.user' },
+                pipeline: [
                     {
-                        $match:{
-                            $expr:{
-                                $in:['$_id','$$userId']
+                        $match: {
+                            $expr: {
+                                $in: ['$_id', '$$userId']
                             }
                         }
                     },
                     {
-                        $group:{
-                            _id:'$_id',
-                            'user':{
-                                $first:{
-                                    name:'$name',
-                                    userName:'$userName',
-                                    profileImage:'$profileImage'
+                        $group: {
+                            _id: '$_id',
+                            'user': {
+                                $first: {
+                                    name: '$name',
+                                    userName: '$userName',
+                                    profileImage: '$profileImage'
                                 }
                             }
                         }
                     }
                 ],
-                as:'tags'
+                as: 'tags'
             }
         },
         {
@@ -97,10 +97,10 @@ exports.getFeed = (req, res, next) => {
                                 },
                                 {                               // grouping required parameters of users
                                     $group: {
-                                        _id:'$_id',
-                                        name:{$first:'$name'},
-                                        userName:{$first:'$userName'},
-                                        profileImage:{$first:'$profileImage'}
+                                        _id: '$_id',
+                                        name: { $first: '$name' },
+                                        userName: { $first: '$userName' },
+                                        profileImage: { $first: '$profileImage' }
                                     }
                                 },
                             ],
@@ -108,141 +108,153 @@ exports.getFeed = (req, res, next) => {
                         }
                     },
                     {
-                        $unwind:'$from'
+                        $unwind: '$from'
                     }
                 ],
                 as: 'comments'
             }
+        },
+        {
+            $skip: start - 1
+        },
+        {
+            $limit: Math.ceil(count / 2)
         }
     ])
-    .then(posts=>{
-        userPosts=posts;
-        return Profile.find({'user':ObjectId(userId)});
-    })
-    .then(profile=>{
-        const profileIds = profile[0].friends.map(friend => friend.user);
-        return Post.aggregate([
-            {
-                $match:{
-                    'createdBy':{
-                        $in: profileIds
-                    }
-                }
-            },
-            {
-                $lookup:{
-                    from:'users',
-                    let:{userId:'$createdBy'},
-                    pipeline:[
-                        {
-                            $match:{
-                                $expr:{
-                                    $eq:['$_id','$$userId']
-                                }
-                            }
-                        },
-                        {
-                            $project:{
-                                _id:1,
-                                name:1,
-                                userName:1,
-                                profileImage:1
-                            }
+        .then(posts => {
+            userPosts = posts;
+            return Profile.find({ 'user': ObjectId(userId) });
+        })
+        .then(profile => {
+            const profileIds = profile[0].friends.map(friend => friend.user);
+            return Post.aggregate([
+                {
+                    $match: {
+                        'createdBy': {
+                            $in: profileIds
                         }
-                    ],
-                    as:'createdBy'
-                }
-            },
-            {
-                $unwind:'$createdBy'
-            },
-            {
-                $lookup:{
-                    from:'users',
-                    let:{user:'$tags.user'},
-                    pipeline:[
-                        {
-                            $match:{
-                                $expr:{
-                                    $in:['$_id','$$user']
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        let: { userId: '$createdBy' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $eq: ['$_id', '$$userId']
+                                    }
+                                }
+                            },
+                            {
+                                $project: {
+                                    _id: 1,
+                                    name: 1,
+                                    userName: 1,
+                                    profileImage: 1
                                 }
                             }
-                        },
-                        {
-                            $group:{
-                                _id:'$_id',
-                                'user':{
-                                    $first:{
-                                        _id:'$_id',
-                                        name:'$name',
-                                        userName:'$userName',
-                                        profileImage:'$profileImage'
+                        ],
+                        as: 'createdBy'
+                    }
+                },
+                {
+                    $unwind: '$createdBy'
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        let: { user: '$tags.user' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $in: ['$_id', '$$user']
+                                    }
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: '$_id',
+                                    'user': {
+                                        $first: {
+                                            _id: '$_id',
+                                            name: '$name',
+                                            userName: '$userName',
+                                            profileImage: '$profileImage'
+                                        }
                                     }
                                 }
                             }
-                        }
-                    ],
-                    as:'tags'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'comments',
-                    let: { postId: '$_id' },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $eq: ['$post', '$$postId']
+                        ],
+                        as: 'tags'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'comments',
+                        let: { postId: '$_id' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $eq: ['$post', '$$postId']
+                                    }
                                 }
-                            }
-                        },
-                        {
-                            $project: {
-                                post: 0
-                            }
-                        },
-                        {
-                            $lookup: {
-                                from: 'users',
-                                let: { userId: '$from' },
-                                pipeline: [
-                                    {
-                                        $match: {
-                                            $expr: {
-                                                $eq: ['$_id', '$$userId']
+                            },
+                            {
+                                $project: {
+                                    post: 0
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'users',
+                                    let: { userId: '$from' },
+                                    pipeline: [
+                                        {
+                                            $match: {
+                                                $expr: {
+                                                    $eq: ['$_id', '$$userId']
+                                                }
                                             }
-                                        }
-                                    },
-                                    {                               // grouping required parameters of users
-                                        $group: {
-                                            _id:'$_id',
-                                            name:{$first:'$name'},
-                                            userName:{$first:'$userName'},
-                                            profileImage:{$first:'$profileImage'}
-                                        }
-                                    },
-                                ],
-                                as: 'from'
+                                        },
+                                        {                               // grouping required parameters of users
+                                            $group: {
+                                                _id: '$_id',
+                                                name: { $first: '$name' },
+                                                userName: { $first: '$userName' },
+                                                profileImage: { $first: '$profileImage' }
+                                            }
+                                        },
+                                    ],
+                                    as: 'from'
+                                }
+                            },
+                            {
+                                $unwind: '$from'
                             }
-                        },
-                        {
-                            $unwind:'$from'
-                        }
-                    ],
-                    as: 'comments'
+                        ],
+                        as: 'comments'
+                    }
+                },
+                {
+                    $skip: start - 1
+                },
+                {
+                    $limit: Math.ceil(count / 2)
                 }
-            }
-        ])
-    })
-    .then(friendPosts=>{
-        const postFeed=userPosts.concat(friendPosts);
-        return res.status(200).json(postFeed);
-    })
-    .catch(err=>{
-        console.log(err);
-        return res.status(500).json(err);
-    })
+            ])
+        })
+        .then(friendPosts => {
+            const postFeed = userPosts.concat(friendPosts);
+            return res.status(200).json(postFeed);
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json(err);
+        })
     // Post.find({ 'createdBy': ObjectId(userId) })
     //     .populate({
     //         path: 'createdBy',
@@ -358,12 +370,15 @@ exports.likePost = (req, res, next) => {
     const { postId, userId } = req.body;
     Post.findById(postId)
         .then(post => {
-            if (post.like.filter(like => like.user == userId).length > 0) {
-                return res.status(400).json({ message: 'user already liked the post' })
+            const likeIndex = post.like.findIndex(like => like.user == userId);
+            if (likeIndex >= 0) {
+                post.like.splice(likeIndex, 1);
             }
-            post.like.unshift({
-                user: ObjectId(userId)
-            });
+            else {
+                post.like.unshift({
+                    user: ObjectId(userId)
+                });
+            }
             return post.save()
         })
         .then(like => {
@@ -385,16 +400,16 @@ exports.createComment = (req, res, next) => {
     }
     Comment.create(comment)
         .then(com => {
-            return Comment.find({'post':postId, '_id':com._id})
-            .populate({
-                path:'from',
-                select:'name userName profileImage'
-            })
+            return Comment.find({ 'post': postId, '_id': com._id })
+                .populate({
+                    path: 'from',
+                    select: 'name userName profileImage'
+                })
         })
-        .then(result=>{
+        .then(result => {
             return res.status(200).json(result);
         })
-        .catch(err=>{
+        .catch(err => {
             console.log(err)
             return res.status(500).json(err);
         });

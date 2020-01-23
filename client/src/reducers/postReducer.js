@@ -1,16 +1,20 @@
-import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED, CREATE_COMMENT, LIKE_COMMENT,CLEAR_POSTS } from '../actions/Types';
+import { GET_FEED, SUBMIT_POST, GET_TIMELINE_FEED, CREATE_COMMENT, LIKE_COMMENT, CLEAR_POSTS } from '../actions/Types';
 
 const initialState = {
     allPosts: [],
-    timeLinePosts: []
+    timeLinePosts: [],
+    hasMorePosts: true
 }
 
 const postReducer = (state = initialState, action) => {
     switch (action.type) {
         case GET_FEED:
+            const allPosts = [...state.allPosts];
+            const { data, hasMorePosts } = action.payload;
             return {
                 ...state,
-                allPosts: action.payload
+                allPosts: allPosts.concat(data),
+                hasMorePosts: hasMorePosts
             }
 
         case SUBMIT_POST:
@@ -25,37 +29,37 @@ const postReducer = (state = initialState, action) => {
                 timeLinePosts: action.payload
             }
         case CREATE_COMMENT: {
-            const posts=[...state.allPosts];
-            const comment=action.payload;
-            posts.find(post=>{
-                if(post._id === comment.post){
+            const posts = [...state.allPosts];
+            const comment = action.payload;
+            posts.find(post => {
+                if (post._id === comment.post) {
                     post.comments.push(comment)
                 }
             })
-            return{
+            return {
                 ...state,
-                allPosts:posts
+                allPosts: posts
             }
         }
 
-        case LIKE_COMMENT:{
-            const posts=[...state.allPosts];
-            posts.find(post=>{
-                if(post._id === action.payload._id){
-                    post.like=[...action.payload.like]
+        case LIKE_COMMENT: {
+            const posts = [...state.allPosts];
+            posts.find(post => {
+                if (post._id === action.payload._id) {
+                    post.like = [...action.payload.like]
                 }
             });
-            return{
+            return {
                 ...state,
-                allPosts:posts
+                allPosts: posts
             }
 
         }
 
-        case CLEAR_POSTS:{
-            return{
+        case CLEAR_POSTS: {
+            return {
                 ...state,
-                allPosts:action.payload
+                allPosts: action.payload
             }
         }
 

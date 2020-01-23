@@ -16,6 +16,8 @@ import { Icon } from '@material-ui/core';
 import { connect } from 'react-redux';
 import TagFriends from './TagFriends';
 import { submitPost } from '../../actions/postActions';
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker } from 'emoji-mart';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -44,8 +46,10 @@ const useStyles = makeStyles(theme => ({
         fontWeight: 'bold',
         color: '#385898',
         height: theme.spacing(5),
+        transition: '0.5s all',
         "&:hover": {
             cursor: 'pointer',
+            background: '#c4c5c7',
         }
     },
     postButton: {
@@ -53,7 +57,8 @@ const useStyles = makeStyles(theme => ({
         marginTop: theme.spacing(2)
     },
     postIcon: {
-        marginLeft: theme.spacing(2)
+        marginLeft: theme.spacing(2),
+        transition: '0.5s all'
     },
     input: {
         display: 'none',
@@ -108,6 +113,11 @@ const useStyles = makeStyles(theme => ({
     secondDivider: {
         marginTop: '8px',
         lineHeight: '1px'
+    },
+    emojiPicker: {
+        position: 'absolute',
+        zIndex: 1000,
+        marginTop: '10px'
     }
 }));
 
@@ -120,6 +130,8 @@ function CreatePost(props) {
     const [uploadedImages, setUploadedImages] = useState([]);
     const [tagFriends, setTagFriends] = useState(false);
     const [taggedFriends, setTaggedFriends] = useState([]);
+    const [chosenEmoji, setChosenEmoji] = useState('');
+    const [showEmoji, setShowEmoji] = useState(false);
 
     const onImageChange = (event) => {
         var file = event.target.files[0];
@@ -168,11 +180,17 @@ function CreatePost(props) {
         setTaggedFriends(selectedFriends);
     }
 
+    const onEmojiClick = (event) => {
+        const emoji = event.native;
+        const text = (postText) ? `${postText}${emoji}` : emoji;
+        setPostText(text);
+    }
+
     return (
         <div className={classes.root}>
             <div className={classes.postHeader}>
                 Create Post
-        </div>
+            </div>
             <Paper className={classes.paper}>
                 <Input
                     placeholder="Write something here..."
@@ -233,6 +251,16 @@ function CreatePost(props) {
                             className={classes.chip}
 
                         />
+                    </label>
+
+                    <label>
+                        <Chip
+                            onClick={() => setShowEmoji(!showEmoji)} htmlFor=""
+                            label="😀"
+                            color="primary"
+                            className={classes.chip}
+                        />
+                        {(showEmoji) ? <Picker style={{position:'absolute',zIndex:1000,transform:'translate(-50%,20%)'}} onSelect={(e) => onEmojiClick(e)} /> : null}
                     </label>
                     <Button
                         disabled={(postText || postFiles.length > 0) ? false : true}

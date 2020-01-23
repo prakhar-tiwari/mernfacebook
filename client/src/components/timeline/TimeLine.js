@@ -18,10 +18,11 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import CreateComment from '../posts/comments/CreateComment';
 import Comments from '../posts/comments/Comments';
-import { likePost, clearAllPosts } from '../../actions/postActions';
+import { likePost, getFeed, clearAllPosts } from '../../actions/postActions';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import PostActions from '../../common/PostActions';
 
 const useStyles = theme => ({
     timeline: {
@@ -222,8 +223,16 @@ const useStyles = theme => ({
         alignItems: 'center',
         textAlign: 'center',
         padding: theme.spacing(0, 2),
+        transition:'all 0.5s',
         '&:hover': {
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transform: 'scale(1.1)',
+            '& > *': {
+                color: '#385898',
+            }
+        },
+        '&:active': {
+            transform: 'scale(0.9)'
         }
     },
     actionIcons: {
@@ -259,7 +268,16 @@ class TimeLine extends Component {
         const { id } = this.props.auth.user;
         this.props.likePost(postId, id);
     }
-    
+
+    componentDidMount() {
+        this.props.clearAllPosts();
+        this.props.getFeed();
+    }
+
+    checkUserLike = (post, user) => {
+        return post.like && post.like.find(l => l.user === user.id);
+    }
+
     render() {
         const { classes } = this.props;
         const { user } = this.props.auth;
@@ -307,9 +325,19 @@ class TimeLine extends Component {
                                     </div>
                                     <hr className={classes.divider} />
                                     <div className={classes.actionsList}>
-                                        <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={(post.like && post.like.find(l => l.user === user.id)) ? classes.actionIcons : classes.takeAction} />Like</Typography>
+                                        <PostActions
+                                            actionItems={classes.actionItems}
+                                            actionIcons={classes.actionIcons}
+                                            takeAction={classes.takeAction}
+                                            postId={post._id}
+                                            post={post}
+                                            user={user}
+                                            handleLike={this.handleLike}
+                                            checkUserLike={this.checkUserLike}
+                                        />
+                                        {/* <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={(post.like && post.like.find(l => l.user === user.id)) ? classes.actionIcons : classes.takeAction} />Like</Typography>
                                         <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
-                                        <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
+                                        <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography> */}
                                     </div>
                                     <hr className={classes.divider} />
                                     <div className={classes.commentSection}>
@@ -341,4 +369,4 @@ const mapStateToProps = state => ({
     profile: state.profile
 })
 
-export default connect(mapStateToProps, { setTimeLineUser, likePost, clearAllPosts })(withStyles(useStyles)(withRouter(TimeLine)));
+export default connect(mapStateToProps, { setTimeLineUser, likePost, getFeed, clearAllPosts })(withStyles(useStyles)(withRouter(TimeLine)));
