@@ -1,9 +1,10 @@
-import { SET_AUTH_USER, GET_ERRORS } from './Types';
+import { SET_AUTH_USER, GET_ERRORS, SOCKET_CONNECT_URL,SOCKET_INIT } from './Types';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import setAuthToken from '../setAuthToken';
+import io from 'socket.io-client';
 
-export const login = (userLogin, props) => dispatch => {
+export const login = (userLogin) => dispatch => {
    axios.post('login', userLogin)
       .then(result => {
          if (result.data.token) {
@@ -11,6 +12,7 @@ export const login = (userLogin, props) => dispatch => {
             setAuthToken(result.data.token);
             const decodedToken = jwt.verify(result.data.token.substring(7), 'secret');
             dispatch(setCurrentUser(decodedToken));
+            dispatch(socketInit());
          }
       })
       .catch(err => {
@@ -39,6 +41,13 @@ export const setCurrentUser = (decodedToken) => {
    return {
       type: SET_AUTH_USER,
       payload: decodedToken
+   }
+}
+
+export const socketInit = () => {
+   return {
+      type: SOCKET_INIT,
+      payload: io(SOCKET_CONNECT_URL)
    }
 }
 

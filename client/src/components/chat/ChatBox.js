@@ -7,7 +7,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import io from 'socket.io-client';
+import { SEND_MESSAGE, PRIVATE_CHAT_MESSAGE } from '../../actions/Types';
 
 const useStyles = theme => ({
     chatBoxMain: {
@@ -95,14 +95,17 @@ class ChatBox extends Component {
             open: false,
             chatMessage: '',
             allMessages: [],
-            socket:null
+            socket: null
         };
+        this.messagesEndRef = React.createRef();
     }
 
     componentDidMount() {
-        this.initSocket();
+        const { socket } = this.props.auth;
+        this.setState({ socket: socket });
         const { user } = this.props.auth;
         const friend = this.props.friend.user;
+        this.scrollToBottom();
         axios.post('/getchat', {
             userId: user.id,
             friendId: friend._id
@@ -115,31 +118,35 @@ class ChatBox extends Component {
             })
     }
 
-    initSocket=()=>{
-        const socket=io('localhost:5000');
-        this.setState({socket:socket})
-    }
-
-    handleOpen = () => {
-        this.setState({ open: true })
+    scrollToBottom = () => {
+        this.messagesEndRef.current.scrollIntoView({ behaviour: 'smooth' })
     }
 
     sendMessage = (event) => {
         const { user } = this.props.auth;
         const friend = this.props.friend.user;
+        const sender = user.id;
+        const reciever = friend._id;
         if (event.key === 'Enter' && this.state.chatMessage.length > 0) {
             axios.post('/sendmessage', {
                 message: this.state.chatMessage,
-                sender: user.id,
-                reciever: friend._id
+                sender,
+                reciever
             })
-                .then(result => {
-                    this.setState({ chatMessage: '' });
+                .then(res => {
+                    const result = res.data;
+                    var updatedMessages = [...this.state.allMessages];
+                    this.setState({ allMessages: updatedMessages.concat(result) });
+                    // this.state.socket.emit(SEND_MESSAGE, { sender, reciever, result }, resultData => {
+                    //     var updatedMessages = [...this.state.allMessages];
+                    //     this.setState({ allMessages: updatedMessages.concat(resultData) });
+                    // });
                 })
                 .catch(err => {
                     console.log(err);
-                    this.setState({ chatMessage: '' });
-                })
+                });
+
+            this.setState({ chatMessage: '' });
         }
     }
 
@@ -147,13 +154,13 @@ class ChatBox extends Component {
         const { user } = nextProps.auth;
         const friend = nextProps.friend.user;
         if (nextState.allMessages !== this.state.allMessages) {
-            this.state.socket.once('chat message', result => {
+            this.state.socket.once(PRIVATE_CHAT_MESSAGE, result => {
                 var updatedMessages = [...this.state.allMessages];
                 this.setState({ allMessages: updatedMessages.concat(result) });
-            })
+            });
+            this.scrollToBottom();
         }
-        if(this.props.friend.user !== nextProps.friend.user){
-            this.initSocket();
+        if (this.props.friend.user !== nextProps.friend.user) {
             axios.post('/getchat', {
                 userId: user.id,
                 friendId: friend._id
@@ -185,7 +192,7 @@ class ChatBox extends Component {
                 </div>
                 <Paper className={classes.chatBox}>
                     <div className={classes.chatWindow}>
-                        {sortedMessages.map(message => (
+                        {sortedMessages.map(message =>
                             (message.from._id === userId) ?
                                 <div key={message._id} className={classes.msgRight}>
                                     <Typography component="p">{message.message}</Typography>
@@ -193,7 +200,9 @@ class ChatBox extends Component {
                                 <div key={message._id} className={classes.msgLeft}>
                                     <Typography component="p">{message.message}</Typography>
                                 </div>
-                        ))}
+                        )}
+
+                        <div ref={this.messagesEndRef} />
                     </div>
                     <div className={classes.sendMessageFooter}>
                         <Input className={classes.textBox}

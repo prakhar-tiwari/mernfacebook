@@ -10,7 +10,7 @@ import Avatar from '@material-ui/core/Avatar';
 import SinglePost from './SinglePost';
 import LikeIcon from '@material-ui/icons/ThumbUp';
 import Typography from '@material-ui/core/Typography';
-import Comments from './comments/Comments';
+import CommentContainer from './comments/CommentContainer';
 import CreateComment from './comments/CreateComment';
 import { connect } from 'react-redux';
 import { getFeed, likePost, clearAllPosts } from '../../actions/postActions';
@@ -132,8 +132,9 @@ class Feed extends Component {
 
     render() {
         const { classes } = this.props;
-        const { allPosts, hasMorePosts } = this.props.post;
+        let { allPosts, hasMorePosts } = this.props.post;
         const { user } = this.props.auth;
+
         return (
             <div>
                 <InfiniteScroll
@@ -174,14 +175,6 @@ class Feed extends Component {
                                         handleLike={this.handleLike}
                                         checkUserLike={this.checkUserLike}
                                     />
-                                    {/* <Typography
-                                        onClick={() => this.handleLike(post._id)}
-                                        className={classes.actionItems}>
-                                        <LikeIcon className={(this.checkUserLike(post, user)) ? classes.actionIcons : classes.takeAction} />
-                                        {this.checkUserLike(post, user) ? 'Unlike' : 'Like'}
-                                    </Typography>
-                                    <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
-                                    <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography> */}
                                 </div>
                                 <hr className={classes.divider} />
                                 <div className={classes.commentSection}>
@@ -189,14 +182,15 @@ class Feed extends Component {
                                         <CreateComment postId={post._id} />
                                     </div>
                                     <div className={classes.comments}>
-                                        {(post.comments) ? post.comments.map(comment => (
-                                            <Comments key={comment._id} comment={comment} />
-                                        )) : null}
+                                        {(post.comments && post.comments.length > 0) ?
+                                            <CommentContainer comments={post.comments} />
+                                            :
+                                            <p>No comments to show</p>}
                                     </div>
                                 </div>
                             </Paper>
                         )) :
-                        <PresentationLoader />
+                            <PresentationLoader />
                     }
                 </InfiniteScroll>
             </div>

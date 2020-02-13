@@ -11,8 +11,7 @@ import authReducer from './reducers/authReducer';
 import postReducer from './reducers/postReducer';
 import profileReducer from './reducers/profileReducer';
 import errorReducer from './reducers/errorReducer';
-import { setCurrentUser, logout } from './actions/authActions';
-import io from 'socket.io-client';
+import { setCurrentUser, logout, socketInit } from './actions/authActions';
 
 
 const middleware = [thunk];
@@ -31,7 +30,7 @@ const store = createStore(
     initialState,
     compose(
         applyMiddleware(...middleware),
-        window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+        (window.__REDUX_DEVTOOLS_EXTENSION__)?window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__():null
     )
 )
 
@@ -40,6 +39,7 @@ if (localStorage.getItem('token')) {
     try {
         var decodedToken = jwt.verify(token.substring(7), 'secret');
         store.dispatch(setCurrentUser(decodedToken));
+        store.dispatch(socketInit());
     }
     catch (error) {
         store.dispatch(logout());
