@@ -141,7 +141,7 @@ export default function Signup() {
             gender: gender
         };
 
-        axios.post('http://localhost:5000/signup', newUser)
+        axios.post('/signup', newUser)
             .then(result => {
                 console.log(result)
             })
