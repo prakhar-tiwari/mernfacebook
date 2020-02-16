@@ -12,6 +12,13 @@ const postSchema = new Schema({
             }
         }
     ],
+    videos: [
+        {
+            videoUrl: {
+                type: String
+            }
+        }
+    ],
     createdBy: {
         type: Schema.Types.ObjectId,
         ref: 'User'

@@ -8,14 +8,13 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import SinglePost from './SinglePost';
-import LikeIcon from '@material-ui/icons/ThumbUp';
-import Typography from '@material-ui/core/Typography';
 import CommentContainer from './comments/CommentContainer';
 import CreateComment from './comments/CreateComment';
 import { connect } from 'react-redux';
 import { getFeed, likePost, clearAllPosts } from '../../actions/postActions';
 import PostActions from '../../common/PostActions';
 import PresentationLoader from '../../common/PresentationLoader';
+import PostActionResult from '../../common/PostActionResult';
 
 const useStyles = theme => ({
     root: {
@@ -159,8 +158,10 @@ class Feed extends Component {
                                 </List>
                                 <SinglePost post={post} />
                                 <div className={classes.actionsResult}>
-                                    <Typography className={classes.actionsResultItem}><LikeIcon className={classes.likeResultIcon} color="primary" /></Typography>
-                                    <Typography className={classes.actionsResultItem}>{(post.like) ? post.like.length : 0}</Typography>
+                                    <PostActionResult 
+                                    actionsResultItem = {classes.actionsResultItem}
+                                    likeResultIcon ={classes.likeResultIcon}
+                                    like={post.like} />
                                 </div>
                                 <hr className={classes.divider} />
                                 <div className={classes.actionsList}>

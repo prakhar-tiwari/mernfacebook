@@ -10,6 +10,7 @@ const postRoute = require('./routes/postRoute');
 const profileRoute = require('./routes/profileRoute');
 const chatRoute = require('./routes/chatRoute');
 const SocketManager = require('./SocketManager');
+const keys = require('./config/keys');
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -34,7 +35,16 @@ const fileStorage = multer.diskStorage({
 });
 
 const filter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg' || file.mimetype === 'image/png') {
+    if (
+        file.mimetype === 'image/jpeg'
+        || file.mimetype === 'image/jpg'
+        || file.mimetype === 'image/png'
+        || file.mimetype === 'video/3gpp'
+        || file.mimetype === 'video/mp4'
+        || file.mimetype === 'video/mpeg'
+        || file.mimetype === 'video/webm'
+        || file.mimetype === 'video/quicktime'
+    ) {
         cb(null, true);
     }
     else {
@@ -62,7 +72,7 @@ if (process.env.NODE_ENV == 'production') {
     })
 }
 
-mongoose.connect('mongodb+srv://prakhar:admin@cluster0-qejpw.mongodb.net/socialmedia', {
+mongoose.connect(keys.MONGO_CONNECT_URL, {
     useNewUrlParser: true
 })
     .then(result => {

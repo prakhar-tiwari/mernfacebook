@@ -1,34 +1,29 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import Dialog from '@material-ui/core/Dialog';
 import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import CommentIcon from '@material-ui/icons/Comment';
-import LikeIcon from '@material-ui/icons/ThumbUp';
-import ShareIcon from '@material-ui/icons/Share';
 import CreateComment from '../../posts/comments/CreateComment';
 import Comments from '../../posts/comments/Comments';
+import PostActions from '../../../common/PostActions';
+import { connect } from 'react-redux';
+import { likePost } from '../../../actions/postActions';
+import PostActionResult from '../../../common/PostActionResult';
 
 const useStyles = makeStyles(theme => ({
-    openPhoto: {
-    },
     imageDetails: {
         width: '1200px',
-        height: '600px',
         display: 'flex',
+        overflow: 'hidden'
     },
     imageHolder: {
         width: '65%',
         background: 'black',
-        height: '100%',
+        height: 'inherit',
         display: 'block',
-        margin: 'auto'
     },
     image: {
         width: '100%',
@@ -41,7 +36,7 @@ const useStyles = makeStyles(theme => ({
     },
     aboutImage: {
         width: '35%',
-        height: '100%'
+        overflow: 'auto'
     },
     actionsList: {
         padding: theme.spacing(1, 2),
@@ -55,66 +50,125 @@ const useStyles = makeStyles(theme => ({
         alignItems: 'center',
         textAlign: 'center',
         padding: theme.spacing(0, 2),
+        transition: 'all 0.5s',
         '&:hover': {
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transform: 'scale(1.1)',
+            '& > *': {
+                color: '#385898',
+            }
+        },
+        '&:active': {
+            transform: 'scale(0.9)'
         }
     },
     actionIcons: {
         margin: theme.spacing(-0.5, 0.5),
-    }
+        color: '#385898'
+    },
+    takeAction: {
+        margin: theme.spacing(-0.5, 0.5),
+        color: '#e9eaed'
+    },
+    actionsResult: {
+        padding: theme.spacing(1, 0),
+        display: 'flex',
+        maxWidth: '100%',
+        backgroundColor: theme.palette.background.paper,
+    },
+    actionsResultItem: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: 0,
+    },
+    divider: {
+        borderBottom: '1px solid #ddd',
+        margin: '5px 7px 6px',
+        paddingTop: '1px'
+    },
+    likeResultIcon: {
+        margin: theme.spacing(-0.5, 0.5),
+    },
 }));
 
-export default function Photo(props) {
+const Photo = (props) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [image, setImage] = React.useState(null);
     const [userName, setUserName] = React.useState('');
-    const { imageDetails, openPhoto } = props;
+    const { imageDetails, openPhoto, isImage } = props;
+    const { user } = props.auth;
 
     React.useEffect(() => {
         if (open !== openPhoto) {
             setOpen(openPhoto);
-            setImage('/'+imageDetails.image);
+            setImage('/' + imageDetails.image);
             setUserName(imageDetails.createdBy.name);
         }
     })
 
-    function handleClose() {
+    const handleClose = () => {
         setOpen(false)
         props.onclose();
     }
 
+    const handleLike = (postId) => {
+        const { id } = props.auth.user;
+        props.likePost(postId, id);
+    }
+
+    const checkUserLike = (post, user) => {
+        return post.like && post.like.find(l => l.user === user.id);
+    }
+
     return (
-        <div className={classes.dialog}>
+        <div>
             <Dialog
                 maxWidth="xl"
                 open={open}
-                aria-labelledby="max-width-dialog-title"
-                className={classes.openPhoto}
                 onClose={handleClose}
             >
                 <div className={classes.imageDetails}>
 
                     <div className={classes.imageHolder}>
-                        <img
+                        {(isImage) ? <img
                             className={classes.image}
                             src={image}
-                        />
+                        /> :
+                            <video
+                                className={classes.image}
+                                src={image}
+                                controls />}
                     </div>
 
                     <div className={classes.aboutImage}>
                         <ListItem alignItems="flex-start">
                             <ListItemAvatar>
-                                <Avatar alt="Remy Sharp" src={(imageDetails.createdBy.profileImage)?'/'+imageDetails.createdBy.profileImage:'/images/blank.png'} />
+                                <Avatar alt={imageDetails.createdBy.name} src={(imageDetails.createdBy.profileImage) ? '/' + imageDetails.createdBy.profileImage : '/images/blank.png'} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={userName}
                             />
                         </ListItem >
+                        <div className={classes.actionsResult}>
+                            <PostActionResult
+                                actionsResultItem={classes.actionsResultItem}
+                                likeResultIcon={classes.likeResultIcon}
+                                like={imageDetails.like} />
+                        </div>
+                        <hr className={classes.divider} />
                         <Paper className={classes.actionsList}>
-                            <Typography className={classes.actionItems}><LikeIcon className={classes.actionIcons} color="primary" />Like</Typography>
-                            <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} color="secondary" />Comment</Typography>
-                            <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} color="primary" />Share</Typography>
+                            <PostActions
+                                actionItems={classes.actionItems}
+                                actionIcons={classes.actionIcons}
+                                takeAction={classes.takeAction}
+                                postId={imageDetails._id}
+                                post={imageDetails}
+                                user={user}
+                                handleLike={handleLike}
+                                checkUserLike={checkUserLike}
+                            />
                         </Paper>
                         {(imageDetails.comments) ? imageDetails.comments.map(comment => (
                             <Comments key={comment._id} comment={comment} />
@@ -126,3 +180,9 @@ export default function Photo(props) {
         </div>
     )
 }
+
+const mapStateToProps = state => ({
+    auth: state.auth
+})
+
+export default connect(mapStateToProps, { likePost })(Photo);

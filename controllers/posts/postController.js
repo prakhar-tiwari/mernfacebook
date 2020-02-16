@@ -12,6 +12,9 @@ exports.getFeed = (req, res, next) => {
             $match: { 'createdBy': ObjectId(userId) }
         },
         {
+            $sort: { 'createdDate': -1 }
+        },
+        {
             $lookup: {
                 from: 'users',
                 let: { userId: '$createdBy' },
@@ -330,16 +333,25 @@ exports.submitPost = (req, res, next) => {
     });
     const images = req.files;
     if (!images) {
-        return res.status(400).json({ message: 'Attached file is not a valid image' })
+        return res.status(400).json({ message: 'Attached file is not a valid image or video' });
     }
-    const imagesPath = images.map(image => {
-        return insertImage = {
+
+    const allImages = images.filter(image => image.mimetype.includes('image')).map(image => {
+        return {
             imageUrl: image.path
         }
     });
+
+    const allVideos = images.filter(image => image.mimetype.includes('video')).map(image => {
+        return {
+            videoUrl: image.path
+        }
+    });
+
     const newPost = {
         text: (postText) ? postText : '',
-        images: imagesPath,
+        images: allImages,
+        videos: allVideos,
         createdBy: userId,
         tags: tFriend,
         createdDate: Date.now()
