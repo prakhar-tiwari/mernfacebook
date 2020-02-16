@@ -15,7 +15,7 @@ export const SOCKET_INIT="SOCKET_INIT";
 
 
 // socket url
-export const SOCKET_CONNECT_URL='http://localhost:5000';
+export const SOCKET_CONNECT_URL='/';
 
 // socket event
 export const SEND_MESSAGE="SEND_MESSAGE";
