@@ -49,6 +49,11 @@ const useStyles = theme => ({
         height: 450,
         "& img": {
             cursor: 'pointer'
+        },
+        "& video": {
+            cursor: 'pointer',
+            width:'100%',
+            height:'100%'
         }
     },
 })
@@ -58,6 +63,7 @@ class Photos extends Component {
         super();
         this.state={
             openPhoto:false,
+            isImage:false,
             imageDetails:null
         }
     }
@@ -65,7 +71,15 @@ class Photos extends Component {
     onPhotoClick=(image)=>{
         this.setState({
             openPhoto:true,
-            imageDetails:image
+            imageDetails:image,
+            isImage:true
+        })
+    }
+    onVideoClick=(video)=>{
+        this.setState({
+            openPhoto:true,
+            imageDetails:video,
+            isImage:false
         })
     }
 
@@ -73,12 +87,26 @@ class Photos extends Component {
         const { classes } = this.props;
         const { user } = this.props.auth;
         const { allPosts } = this.props.post;
-        const picturePost = allPosts.filter(post => post.images.length > 0)
+        const picturePost = allPosts.filter(post => post.images && post.images.length > 0)
         .map(post => {
             return post.images.map(image => {
                 return {
                     _id: post._id,
                     image: image.imageUrl,
+                    createdBy: post.createdBy,
+                    comments: post.comments,
+                    like: post.like,
+                    profileImage: post.profileImage,
+                    userName: post.userName
+                }
+            })
+        }).flat(1);
+        const videoPost = allPosts.filter(post => post.videos && post.videos.length > 0)
+        .map(post => {
+            return post.videos.map(image => {
+                return {
+                    _id: post._id,
+                    video: image.videoUrl,
                     createdBy: post.createdBy,
                     comments: post.comments,
                     like: post.like,
@@ -104,8 +132,19 @@ class Photos extends Component {
                                 <img onClick={()=>this.onPhotoClick(post)} src={'/' + post.image} />
                             </GridListTile>
                         ))}
+                        {videoPost.map(post => (
+                            <GridListTile key={post._id} cols={1}>
+                                <video onClick={()=>this.onVideoClick(post)} src={'/' + post.video} />
+                            </GridListTile>
+                        ))}
                     </GridList>
-                    {(this.state.openPhoto) ? <Photo openPhoto={this.state.openPhoto} imageDetails={this.state.imageDetails} onclose={()=>this.setState({openPhoto:false})} /> : null}
+                    {(this.state.openPhoto) 
+                    ? <Photo 
+                    isImage={this.state.isImage}
+                    openPhoto={this.state.openPhoto} 
+                    imageDetails={this.state.imageDetails} 
+                    onclose={()=>this.setState({openPhoto:false})} /> 
+                    : null}
                 </div>
             </div>
         )

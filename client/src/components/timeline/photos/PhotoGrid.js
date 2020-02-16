@@ -35,6 +35,11 @@ const useStyles = makeStyles(theme => ({
         height: 450,
         "& img": {
             cursor: 'pointer'
+        },
+        "& video": {
+            cursor: 'pointer',
+            width: '100%',
+            height: '100%'
         }
     },
     icon: {
@@ -49,21 +54,44 @@ const useStyles = makeStyles(theme => ({
 
 export default function PhotoGrid(props) {
     const classes = useStyles();
+    const [isImage, setIsImage] = React.useState(false);
     const [openPhoto, setOpenPhoto] = React.useState(false);
     const [imageDetails, setImageDetails] = React.useState(null);
     const { posts } = props;
 
-    function onPhotoClick(image) {
+    const onPhotoClick = (image) => {
         setOpenPhoto(true);
+        setIsImage(true);
         setImageDetails(image);
     }
 
-    const picturePost = posts.filter(post => post.images.length > 0)
+    const onVideoClick = (video) => {
+        setOpenPhoto(true);
+        setIsImage(false);
+        setImageDetails(video);
+    }
+
+    const picturePost = posts.filter(post => post.images && post.images.length > 0)
         .map(post => {
             return post.images.map(image => {
                 return {
                     _id: post._id,
                     image: image.imageUrl,
+                    createdBy: post.createdBy,
+                    comments: post.comments,
+                    like: post.like,
+                    profileImage: post.profileImage,
+                    userName: post.userName
+                }
+            })
+        }).flat(1);
+
+    const videoPost = posts.filter(post => post.videos && post.videos.length > 0)
+        .map(post => {
+            return post.videos.map(image => {
+                return {
+                    _id: post._id,
+                    video: image.videoUrl,
                     createdBy: post.createdBy,
                     comments: post.comments,
                     like: post.like,
@@ -89,12 +117,17 @@ export default function PhotoGrid(props) {
                 <div className={classes.pictureGrid}>
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
                         {picturePost.map(post => (
-                            <GridListTile key={post._id+'-'+post.image} cols={1}>
+                            <GridListTile key={post._id + '-' + post.image} cols={1}>
                                 <img onClick={() => onPhotoClick(post)} src={'/' + post.image} />
                             </GridListTile>
                         ))}
+                        {videoPost.map(post => (
+                            <GridListTile key={post._id + '-' + post.video} cols={1}>
+                                <video onClick={() => onVideoClick(post)} src={'/' + post.video} />
+                            </GridListTile>
+                        ))}
                     </GridList>
-                    {(openPhoto) ? <Photo openPhoto={openPhoto} imageDetails={imageDetails} onclose={() => {
+                    {(openPhoto) ? <Photo isImage={isImage} openPhoto={openPhoto} imageDetails={imageDetails} onclose={() => {
                         setOpenPhoto(false)
                     }} /> : null}
                 </div>

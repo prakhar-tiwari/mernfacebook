@@ -16,7 +16,7 @@ function HomePage() {
       <Grid item xs={6}>
         <DashBoard />
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={2}>
         <UserList />
       </Grid>
     </React.Fragment>

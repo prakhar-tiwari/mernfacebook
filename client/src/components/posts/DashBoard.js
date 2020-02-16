@@ -6,7 +6,7 @@ import ErrorBoundary from '../../common/ErrorBoundary';
 
 const useStyles = makeStyles(theme => ({
     root: {
-        marginTop: '20px',
+        marginTop: '80px',
         minHeight: '100vh'
     }
 }));

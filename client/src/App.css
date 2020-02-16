@@ -3,5 +3,5 @@
 }
 
 body{
-  background: url('/images/bgImage.png');
+  background: url('/images/bgImage.png') fixed;
 }

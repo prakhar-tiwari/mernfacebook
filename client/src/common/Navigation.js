@@ -28,8 +28,11 @@ const useStyles = theme => ({
     grow: {
         flexGrow: 1,
     },
+    headerBar: {
+        height: '55px'
+    },
     appBar: {
-        minHeight: '50px'
+        height: '50px'
     },
     menuButton: {
         marginRight: theme.spacing(2),
@@ -351,8 +354,8 @@ class Navigation extends Component {
 
         return (
             <div className={classes.grow}>
-                <AppBar className={classes.appBar} position="static">
-                    <Toolbar>
+                <AppBar className={classes.headerBar} position="fixed">
+                    <Toolbar className={classes.appBar} style={{minHeight:'50px'}}>
                         <Typography className={classes.title} variant="h6" noWrap>
                             SocialConnect
                             </Typography>

@@ -9,7 +9,7 @@ import HomePage from './components/HomePage';
 
 const useStyles = theme => ({
   root: {
-    background: "url('/images/bgImage.png')",
+    background: "url('/images/bgImage.png') fixed",
     height: '100%'
   },
 });

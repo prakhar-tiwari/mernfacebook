@@ -19,7 +19,8 @@ import axios from 'axios';
 const useStyles = theme => ({
     timeline: {
         width: '85%',
-        marginLeft: '5%'
+        marginLeft: '5%',
+        marginTop:'50px'
     },
     timeLineCover: {
         borderRadius: '2px'
