@@ -304,7 +304,7 @@ class Navigation extends Component {
                     }
                 })}>
                     <ListItemAvatar>
-                        <Avatar src={(user.profileImage)?'/' + user.profileImage:'/images/blank.png'} />
+                        <Avatar src={(user.profileImage)?user.profileImage:'images/blank.png'} />
                     </ListItemAvatar>
                     <ListItemText primary={this.state.userName} />
                 </MenuItem>
@@ -373,7 +373,7 @@ class Navigation extends Component {
                                 }
                             })}>
                                 <ListItemAvatar>
-                                    <Avatar src={(user.profileImage)?'/' + user.profileImage:'/images/blank.png'} />
+                                    <Avatar onError={(e) => { e.target.src='images/404.png' }} src={(user.profileImage)? user.profileImage:'images/blank.png'} />
                                 </ListItemAvatar>
                                 <ListItemText primary={this.state.userName} />
                             </MenuItem>
@@ -413,7 +413,7 @@ class Navigation extends Component {
                                                 <React.Fragment key={friend.user._id}>
                                                     <div className={classes.friendInfo} >
                                                         <ListItemAvatar>
-                                                            <Avatar alt="Remy Sharp" src={(friend.user.profileImage) ? '/' + friend.user.profileImage : '/images/blank.png'} />
+                                                            <Avatar onError={(e) => { e.target.src='images/404.png' }} alt="Remy Sharp" src={(friend.user.profileImage) ? friend.user.profileImage : 'images/blank.png'} />
                                                         </ListItemAvatar>
                                                         <div className={classes.typography}>
                                                             <Typography > {friend.user.name} </Typography>

@@ -149,7 +149,7 @@ class Feed extends Component {
                                 <List className={classes.list}>
                                     <ListItem alignItems="flex-start">
                                         <ListItemAvatar>
-                                            <Avatar alt="Remy Sharp" src={'/' + post.createdBy.profileImage} />
+                                            <Avatar alt="Remy Sharp" src={(post.createdBy.profileImage) ? post.createdBy.profileImage : 'images/blank.png'} />
                                         </ListItemAvatar>
                                         <ListItemText
                                             primary={post.createdBy.name}
@@ -158,10 +158,10 @@ class Feed extends Component {
                                 </List>
                                 <SinglePost post={post} />
                                 <div className={classes.actionsResult}>
-                                    <PostActionResult 
-                                    actionsResultItem = {classes.actionsResultItem}
-                                    likeResultIcon ={classes.likeResultIcon}
-                                    like={post.like} />
+                                    <PostActionResult
+                                        actionsResultItem={classes.actionsResultItem}
+                                        likeResultIcon={classes.likeResultIcon}
+                                        like={post.like} />
                                 </div>
                                 <hr className={classes.divider} />
                                 <div className={classes.actionsList}>

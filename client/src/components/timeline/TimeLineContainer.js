@@ -20,7 +20,7 @@ const useStyles = theme => ({
     timeline: {
         width: '85%',
         marginLeft: '5%',
-        marginTop:'50px'
+        marginTop: '50px'
     },
     timeLineCover: {
         borderRadius: '2px'
@@ -308,7 +308,7 @@ class TimeLineContainer extends Component {
     render() {
         const { classes } = this.props;
         const { user } = this.props.auth;
-        const {timeLineUser} = this.props.profile;
+        const { timeLineUser } = this.props.profile;
 
         var openFriend = Boolean(this.state.anchorE1);
         var openFollow = Boolean(this.state.anchorE2);
@@ -324,13 +324,13 @@ class TimeLineContainer extends Component {
             <div className={classes.timeline} >
                 <div className={classes.timeLineCover} >
                     <div className={classes.coverPhoto} >
-                        <img src="/images/Batman.jpg" />
+                        <img src="images/Batman.jpg" />
                     </div>
                     <div onMouseEnter={() => this.setState({ isUpload: true })}
                         onMouseLeave={() => this.setState({ isUpload: false })} className={classes.profilePicture} >
                         <a
                             href="#" >
-                            {(timeLineUser.profileImage) ? <img src={'/' + timeLineUser.profileImage} /> : <img src="/images/blank.png" />}
+                            {(timeLineUser.profileImage) ? <img src={timeLineUser.profileImage} /> : <img src="images/blank.png" />}
                         </a>
                         {(timeLineUser.authUser && this.state.isUpload) ? <div className={classes.uploadPhotoDiv}>
                             <input onChange={this.uploadProfilePhoto} className={classes.uploadImageInput} id="icon-button-file" type="file" />
@@ -438,7 +438,7 @@ class TimeLineContainer extends Component {
                                 className={classes.listItem} > About </Link></li >
                             <li> <Link to={`/${timeLineUser.userName}/friends`}
                                 className={classes.listItem} > Friends <span className={classes.totalFriends} > {friends.length} </span></Link >
-                            </li> 
+                            </li>
                             <li> <Link to={`/${timeLineUser.userName}/photos`}
                                 className={classes.listItem} > Photos </Link></li >
                             <li> <Link to="#"

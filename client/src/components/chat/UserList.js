@@ -23,7 +23,7 @@ const useStyles = theme => ({
         marginLeft: "30%",
         borderLeft: '1px solid #6b6c70',
         borderRadius: 0,
-        background: "url('/images/bgImage.png')",
+        background: "url('images/bgImage.png')",
         boxShadow: 'inset 2px 0 2px -2px #b2b9c9',
         lineHeight: '16px',
         height: '100vh'
@@ -80,7 +80,7 @@ class UserList extends Component {
                         {(friendsList) ? friendsList.map(friend => (
                             <ListItem key={friend.user._id} button onClick={() => this.openModal(friend)}>
                                 <ListItemAvatar>
-                                    <Avatar alt="Remy Sharp" src={(friend.user.profileImage) ? '/' + friend.user.profileImage : '/images/blank.png'} />
+                                    <Avatar onError={(e) => { e.target.src='images/404.png' }} alt={friend.user.name} src={(friend.user.profileImage) ? friend.user.profileImage : 'images/blank.png'} />
                                 </ListItemAvatar>
                                 <ListItemText primary={friend.user.name} />
                                 {/* <Badge color="primary" variant="dot"></Badge> */}

@@ -145,7 +145,7 @@ const Photo = (props) => {
                     <div className={classes.aboutImage}>
                         <ListItem alignItems="flex-start">
                             <ListItemAvatar>
-                                <Avatar alt={imageDetails.createdBy.name} src={(imageDetails.createdBy.profileImage) ? imageDetails.createdBy.profileImage : '/images/blank.png'} />
+                                <Avatar onError={(e) => { e.target.src = 'images/404.png' }} alt={imageDetails.createdBy.name} src={(imageDetails.createdBy.profileImage) ? imageDetails.createdBy.profileImage : 'images/blank.png'} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={userName}

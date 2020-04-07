@@ -118,12 +118,12 @@ export default function PhotoGrid(props) {
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
                         {picturePost.map(post => (
                             <GridListTile key={post._id + '-' + post.image} cols={1}>
-                                <img onClick={() => onPhotoClick(post)} src={'/' + post.image} />
+                                <img onError={(e) => { e.target.src='images/404.png' }} onClick={() => onPhotoClick(post)} src={post.image} />
                             </GridListTile>
                         ))}
                         {videoPost.map(post => (
                             <GridListTile key={post._id + '-' + post.video} cols={1}>
-                                <video onClick={() => onVideoClick(post)} src={'/' + post.video} />
+                                <video onClick={() => onVideoClick(post)} src={post.video} />
                             </GridListTile>
                         ))}
                     </GridList>

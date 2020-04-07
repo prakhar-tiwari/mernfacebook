@@ -145,7 +145,7 @@ export default function TimeLinePost(props) {
                 <GridList cellHeight={200} className={classes.gridList}>
                     {imageUrls.map(image => (
                         <GridListTile cols={image.featured ? 2 : 1} rows={image.featured ? 2 : 1} key={image._id}>
-                            <img onClick={() => onPhotoClick('/'+image.imageUrl)} src={'/'+image.imageUrl} />
+                            <img onError={(e) => { e.target.src='images/404.png' }} onClick={() => onPhotoClick(image.imageUrl)} src={image.imageUrl} />
                         </GridListTile>
                     ))}
                 </GridList>

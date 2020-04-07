@@ -129,12 +129,12 @@ class Photos extends Component {
                     <GridList className={classes.gridList} cols={4}>
                         {picturePost.map(post => (
                             <GridListTile key={post._id} cols={1}>
-                                <img onClick={()=>this.onPhotoClick(post)} src={'/' + post.image} />
+                                <img onError={(e) => { e.target.src='images/404.png' }} onClick={()=>this.onPhotoClick(post)} src={post.image} />
                             </GridListTile>
                         ))}
                         {videoPost.map(post => (
                             <GridListTile key={post._id} cols={1}>
-                                <video onClick={()=>this.onVideoClick(post)} src={'/' + post.video} />
+                                <video onError={(e) => { e.target.src='images/404.png' }} onClick={()=>this.onVideoClick(post)} src={post.video} />
                             </GridListTile>
                         ))}
                     </GridList>
