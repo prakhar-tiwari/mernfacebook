@@ -80,7 +80,7 @@ class UserList extends Component {
                         {(friendsList) ? friendsList.map(friend => (
                             <ListItem key={friend.user._id} button onClick={() => this.openModal(friend)}>
                                 <ListItemAvatar>
-                                    <Avatar onError={(e) => { e.target.src='images/404.png' }} alt={friend.user.name} src={(friend.user.profileImage) ? friend.user.profileImage : 'images/blank.png'} />
+                                    <Avatar onError={(e) => { e.target.src = 'images/404.png' }} onError={(e) => { e.target.src='images/404.png' }} alt={friend.user.name} src={(friend.user.profileImage) ? friend.user.profileImage : 'images/blank.png'} />
                                 </ListItemAvatar>
                                 <ListItemText primary={friend.user.name} />
                                 {/* <Badge color="primary" variant="dot"></Badge> */}

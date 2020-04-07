@@ -330,7 +330,7 @@ class TimeLineContainer extends Component {
                         onMouseLeave={() => this.setState({ isUpload: false })} className={classes.profilePicture} >
                         <a
                             href="#" >
-                            {(timeLineUser.profileImage) ? <img src={timeLineUser.profileImage} /> : <img src="images/blank.png" />}
+                            {(timeLineUser.profileImage) ? <img onError={(e) => { e.target.src = 'images/404.png' }} src={timeLineUser.profileImage} /> : <img src="images/blank.png" />}
                         </a>
                         {(timeLineUser.authUser && this.state.isUpload) ? <div className={classes.uploadPhotoDiv}>
                             <input onChange={this.uploadProfilePhoto} className={classes.uploadImageInput} id="icon-button-file" type="file" />

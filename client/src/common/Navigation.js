@@ -304,7 +304,7 @@ class Navigation extends Component {
                     }
                 })}>
                     <ListItemAvatar>
-                        <Avatar src={(user.profileImage)?user.profileImage:'images/blank.png'} />
+                        <Avatar onError={(e) => { e.target.src = 'images/404.png' }} src={(user.profileImage)?user.profileImage:'images/blank.png'} />
                     </ListItemAvatar>
                     <ListItemText primary={this.state.userName} />
                 </MenuItem>

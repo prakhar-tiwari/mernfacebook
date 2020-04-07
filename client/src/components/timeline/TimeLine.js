@@ -311,7 +311,7 @@ class TimeLine extends Component {
                                     <List className={classes.list}>
                                         <ListItem alignItems="flex-start">
                                             <ListItemAvatar>
-                                                <Avatar alt="Remy Sharp" src={post.createdBy.profileImage} />
+                                                <Avatar  onError={(e) => { e.target.src = 'images/404.png' }} alt="Remy Sharp" src={post.createdBy.profileImage} />
                                             </ListItemAvatar>
                                             <ListItemText
                                                 primary={post.createdBy.name}

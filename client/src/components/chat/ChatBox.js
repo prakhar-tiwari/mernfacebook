@@ -185,7 +185,7 @@ class ChatBox extends Component {
             <div className={classes.chatBoxMain}>
                 <div className={classes.topBar}>
                     <div className={classes.userInfo}>
-                        <Avatar alt={user.name} src={(user.profileImage) ? user.profileImage : 'images/blank.png'} />
+                        <Avatar  onError={(e) => { e.target.src = 'images/404.png' }} alt={user.name} src={(user.profileImage) ? user.profileImage : 'images/blank.png'} />
                         <Typography component="p">{user.name}</Typography>
                     </div>
                     <div><CloseIcon className={classes.close} onClick={this.props.click.bind(this)} /></div>

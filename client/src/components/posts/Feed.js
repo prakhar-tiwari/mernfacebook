@@ -149,7 +149,7 @@ class Feed extends Component {
                                 <List className={classes.list}>
                                     <ListItem alignItems="flex-start">
                                         <ListItemAvatar>
-                                            <Avatar alt="Remy Sharp" src={(post.createdBy.profileImage) ? post.createdBy.profileImage : 'images/blank.png'} />
+                                            <Avatar onError={(e) => { e.target.src = 'images/404.png' }} alt="Remy Sharp" src={(post.createdBy.profileImage) ? post.createdBy.profileImage : 'images/blank.png'} />
                                         </ListItemAvatar>
                                         <ListItemText
                                             primary={post.createdBy.name}
