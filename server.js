@@ -3,12 +3,16 @@ const path = require('path');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const multerS3 = require('multer-s3');
+const aws = require('aws-sdk');
 const app = express();
 
 const authRoute = require('./routes/auth');
 const postRoute = require('./routes/postRoute');
 const profileRoute = require('./routes/profileRoute');
 const chatRoute = require('./routes/chatRoute');
+const uploadRoute = require('./routes/uploadRoute');
+
 const SocketManager = require('./SocketManager');
 const keys = require('./config/keys');
 
@@ -34,6 +38,23 @@ const fileStorage = multer.diskStorage({
     }
 });
 
+const s3 = new aws.S3({
+    accessKeyId: keys.AWS_ACCESS_KEY_ID,
+    secretAccessKey: keys.AWS_SECRET_ACCESS_KEY,
+    signatureVersion: 'v4'
+});
+
+const s3Storage = multerS3({
+    s3: s3,
+    bucket: 'socialconnectapp-bucket',
+    metadata: function (req, file, cb) {
+        cb(null, { fieldName: file.fieldname });
+    },
+    key: function (req, file, cb) {
+        cb(null, Date.now() + '_' + file.originalname)
+    }
+})
+
 const filter = (req, file, cb) => {
     if (
         file.mimetype === 'image/jpeg'
@@ -52,13 +73,14 @@ const filter = (req, file, cb) => {
     }
 }
 
-app.use(multer({ storage: fileStorage, fileFilter: filter }).array('fileImages'));
+app.use(multer({ storage: s3Storage, fileFilter: filter }).array('fileImages'));
 
 // api
 app.use(authRoute);
 app.use(postRoute);
 app.use(profileRoute);
 app.use(chatRoute);
+// app.use(uploadRoute);
 
 
 

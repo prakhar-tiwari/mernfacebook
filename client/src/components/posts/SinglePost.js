@@ -190,13 +190,13 @@ function SinglePost(props) {
                 <GridList className={classes.gridList}>
                     {(imageUrls) ? imageUrls.map(image => (
                         <GridListTile cols={image.featured ? 2 : 1} rows={image.featured ? 2 : 1} key={image._id}>
-                            <img onClick={() => onPhotoClick(post, image._id)} src={(image.imageUrl)?`/${image.imageUrl}`:'/images/404.png'} />
+                            <img onClick={() => onPhotoClick(post, image._id)} src={(image.imageUrl)?`${image.imageUrl}`:'/images/404.png'} />
                         </GridListTile>
                     )) :
                         null}
                     {(videoUrls) ? videoUrls.map(video => (
                         <GridListTile cols={video.featured ? 2 : 1} rows={video.featured ? 2 : 1} key={video._id}>
-                            <video onClick={() => onVideoClick(post, video._id)} src={(video.videoUrl)?`/${video.videoUrl}`:'/images/404.png'} />
+                            <video onClick={() => onVideoClick(post, video._id)} src={(video.videoUrl)?`${video.videoUrl}`:'/images/404.png'} />
                         </GridListTile>
                     )) :
                         null}

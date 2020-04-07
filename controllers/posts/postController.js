@@ -2,6 +2,7 @@ const Post = require('../../models/Post');
 const Profile = require('../../models/Profile');
 const Comment = require('../../models/Comment');
 const ObjectId = require('mongoose').Types.ObjectId;
+const keys = require('../../config/keys');
 
 
 exports.getFeed = (req, res, next) => {
@@ -338,13 +339,13 @@ exports.submitPost = (req, res, next) => {
 
     const allImages = images.filter(image => image.mimetype.includes('image')).map(image => {
         return {
-            imageUrl: image.path
+            imageUrl: image.location
         }
     });
 
-    const allVideos = images.filter(image => image.mimetype.includes('video')).map(image => {
+    const allVideos = images.filter(image => image.mimetype.includes('video')).map(video => {
         return {
-            videoUrl: image.path
+            videoUrl: video.location
         }
     });
 

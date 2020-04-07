@@ -103,7 +103,7 @@ const Photo = (props) => {
     React.useEffect(() => {
         if (open !== openPhoto) {
             setOpen(openPhoto);
-            setImage('/' + imageDetails.image);
+            setImage(imageDetails.image);
             setUserName(imageDetails.createdBy.name);
         }
     })
@@ -145,7 +145,7 @@ const Photo = (props) => {
                     <div className={classes.aboutImage}>
                         <ListItem alignItems="flex-start">
                             <ListItemAvatar>
-                                <Avatar alt={imageDetails.createdBy.name} src={(imageDetails.createdBy.profileImage) ? '/' + imageDetails.createdBy.profileImage : '/images/blank.png'} />
+                                <Avatar alt={imageDetails.createdBy.name} src={(imageDetails.createdBy.profileImage) ? imageDetails.createdBy.profileImage : '/images/blank.png'} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={userName}
