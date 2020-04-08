@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
         maxWidth: '100%',
         "& a": {
             color: '#385898',
-            fontSize:'14px',
+            fontSize: '14px',
             padding: '0 4px',
             "&:hover": {
                 cursor: 'pointer',
@@ -57,13 +57,13 @@ const useStyles = makeStyles(theme => ({
 
 export default function Comments(props) {
     const classes = useStyles();
-    const {comment} = props;
+    const { comment } = props;
     return (
         <div>
             <div className={classes.commentSection}>
                 <div className={classes.message}>
                     <ListItemAvatar>
-                        <Avatar alt={comment.from.name} src={(comment.from.profileImage)?'/'+comment.from.profileImage:'/images/blank.png'} />
+                        <Avatar onError={(e) => { e.target.src = 'images/404.png' }} alt={comment.from.name} src={(comment.from.profileImage) ? comment.from.profileImage : 'images/blank.png'} />
                     </ListItemAvatar>
                     <div className={classes.messageBody}>
                         <Typography component="p"><a>{comment.from.name}</a> {comment.text}</Typography>

@@ -135,12 +135,9 @@ class ChatBox extends Component {
             })
                 .then(res => {
                     const result = res.data;
-                    var updatedMessages = [...this.state.allMessages];
-                    this.setState({ allMessages: updatedMessages.concat(result) });
-                    // this.state.socket.emit(SEND_MESSAGE, { sender, reciever, result }, resultData => {
-                    //     var updatedMessages = [...this.state.allMessages];
-                    //     this.setState({ allMessages: updatedMessages.concat(resultData) });
-                    // });
+                    // var updatedMessages = [...this.state.allMessages];
+                    // this.setState({ allMessages: updatedMessages.concat(result) });
+                    this.state.socket.emit('check-message', { sender, reciever, result });
                 })
                 .catch(err => {
                     console.log(err);
@@ -150,17 +147,18 @@ class ChatBox extends Component {
         }
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        const { user } = nextProps.auth;
-        const friend = nextProps.friend.user;
-        if (nextState.allMessages !== this.state.allMessages) {
+    componentWillUpdate(prevProps, prevState) {
+        const { user } = prevProps.auth;
+        const friend = prevProps.friend.user;
+
+        if (prevState.allMessages !== this.state.allMessages) {
             this.state.socket.once(PRIVATE_CHAT_MESSAGE, result => {
                 var updatedMessages = [...this.state.allMessages];
                 this.setState({ allMessages: updatedMessages.concat(result) });
             });
             this.scrollToBottom();
         }
-        if (this.props.friend.user !== nextProps.friend.user) {
+        if (this.props.friend.user !== prevProps.friend.user) {
             axios.post('/getchat', {
                 userId: user.id,
                 friendId: friend._id
@@ -180,12 +178,11 @@ class ChatBox extends Component {
         const userId = this.props.auth.user.id;
         let sortedMessages = (this.state.allMessages) ? this.state.allMessages.sort((a, b) => a.createdAt < b.createdAt ? -1 : 1) : [];
 
-
         return (
             <div className={classes.chatBoxMain}>
                 <div className={classes.topBar}>
                     <div className={classes.userInfo}>
-                        <Avatar  onError={(e) => { e.target.src = 'images/404.png' }} alt={user.name} src={(user.profileImage) ? user.profileImage : 'images/blank.png'} />
+                        <Avatar onError={(e) => { e.target.src = 'images/404.png' }} alt={user.name} src={(user.profileImage) ? user.profileImage : 'images/blank.png'} />
                         <Typography component="p">{user.name}</Typography>
                     </div>
                     <div><CloseIcon className={classes.close} onClick={this.props.click.bind(this)} /></div>

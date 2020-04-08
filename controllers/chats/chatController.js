@@ -18,7 +18,6 @@ exports.sendMessage = (req, res, next) => {
                 })
         })
         .then(result => {
-            io.getIO().emit('check-message', {sender,reciever,result});
             return res.status(200).json(result);
         })
         .catch(err => {

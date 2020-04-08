@@ -13,15 +13,11 @@ const SocketManager = (socket) => {
     //         callback();
     //     }
     // })
-    socket.on('check-message', ({ sender, reciever, result }, callback) => {
+    socket.on('check-message', ({ sender, reciever, result }) => {
         const room = [sender, reciever].sort().join("-");
         if (room) {
             socket.join(room);
             io.getIO().to(room).emit(PRIVATE_CHAT_MESSAGE, result);
-            callback(result);
-        }
-        else {
-            callback();
         }
     })
 }
