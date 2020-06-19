@@ -11,7 +11,7 @@
     "react-dom": "^16.8.6",
     "react-redux": "^7.1.0",
     "react-router-dom": "^5.0.1",
-    "react-scripts": "3.0.1",
+    "react-scripts": "^3.4.1",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "socket.io-client": "^2.2.0"
@@ -22,11 +22,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-<<<<<<< HEAD
   "proxy": "http://localhost:8080",
-=======
-  "proxy":"http://localhost:8080",
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
   "eslintConfig": {
     "extends": "react-app"
   },
