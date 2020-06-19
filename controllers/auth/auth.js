@@ -1,14 +1,14 @@
 const bcrypt = require('bcryptjs');
 const User = require('../../models/User');
-const Profile=require('../../models/Profile');
+const Profile = require('../../models/Profile');
 const jwt = require('jsonwebtoken');
-const {validationResult}=require('express-validator');
+const { validationResult } = require('express-validator');
 
 exports.signup = (req, res, next) => {
     const { firstName, lastName, contactInfo, password, dob, gender } = req.body;
-    const name=`${firstName} ${lastName}`;
-    const errors=validationResult(req);
-    if(!errors.isEmpty()){
+    const name = `${firstName} ${lastName}`;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
         return res.status(422).json(errors.array());
     }
     let newUser;
@@ -51,11 +51,11 @@ exports.signup = (req, res, next) => {
             return User.create(newUser)
         })
         .then(user => {
-            const profile={user:user._id}
+            const profile = { user: user._id }
             return Profile.create(profile);
         })
-        .then(result=>{
-            return res.status(200).json({message:'User\'s profile created successfully '});
+        .then(result => {
+            return res.status(200).json({ message: 'User\'s profile created successfully ' });
         })
         .catch(err => {
             console.log(err)
@@ -66,17 +66,19 @@ exports.signup = (req, res, next) => {
 exports.login = (req, res, next) => {
     const { contactInfo, password } = req.body;
     console.log(password)
-    const errors=validationResult(req);
-    if(!errors.isEmpty()){
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
         return res.status(422).json(errors.array());
     }
-    let authUser;
-    User.find({
-        $or: [
-            { 'email': contactInfo },
-            { 'contactNumber': contactInfo }
-        ]
-    })
+    let findUserAsync, authUser;
+    if (isNaN(parseInt(contactInfo))) {
+        findUserAsync = User.find({ 'email': contactInfo });
+    }
+    else {
+        findUserAsync = User.find({ 'contactNumber': contactInfo });
+    }
+    
+    findUserAsync
         .then(user => {
             if (!user) {
                 return res.status(401).json({ message: 'User not found' })
@@ -91,8 +93,8 @@ exports.login = (req, res, next) => {
             const payload = {
                 id: authUser[0]._id,
                 name: authUser[0].name,
-                userName:authUser[0].userName,
-                profileImage:authUser[0].profileImage,
+                userName: authUser[0].userName,
+                profileImage: authUser[0].profileImage,
             };
 
             jwt.sign(
