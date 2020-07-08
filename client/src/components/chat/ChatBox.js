@@ -7,7 +7,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import io from 'socket.io-client';
+import { SEND_MESSAGE, PRIVATE_CHAT_MESSAGE } from '../../actions/Types';
 
 const useStyles = theme => ({
     chatBoxMain: {
@@ -94,19 +94,23 @@ class ChatBox extends Component {
         this.state = {
             open: false,
             chatMessage: '',
-            allMessages: []
+            allMessages: [],
+            socket: null
         };
+        this.messagesEndRef = React.createRef();
     }
 
     componentDidMount() {
+        const { socket } = this.props.auth;
+        this.setState({ socket: socket });
         const { user } = this.props.auth;
         const friend = this.props.friend.user;
+        this.scrollToBottom();
         axios.post('/getchat', {
             userId: user.id,
             friendId: friend._id
         })
             .then(result => {
-                console.log(result);
                 this.setState({ allMessages: result.data });
             })
             .catch(err => {
@@ -114,36 +118,57 @@ class ChatBox extends Component {
             })
     }
 
-    handleOpen = () => {
-        this.setState({ open: true })
+    scrollToBottom = () => {
+        this.messagesEndRef.current.scrollIntoView({ behaviour: 'smooth' })
     }
 
     sendMessage = (event) => {
         const { user } = this.props.auth;
         const friend = this.props.friend.user;
+        const sender = user.id;
+        const reciever = friend._id;
         if (event.key === 'Enter' && this.state.chatMessage.length > 0) {
             axios.post('/sendmessage', {
                 message: this.state.chatMessage,
-                sender: user.id,
-                reciever: friend._id
+                sender,
+                reciever
             })
-                .then(result => {
-                    console.log(result);
-                    this.setState({ chatMessage: '' });
+                .then(res => {
+                    const result = res.data;
+                    // var updatedMessages = [...this.state.allMessages];
+                    // this.setState({ allMessages: updatedMessages.concat(result) });
+                    this.state.socket.emit('check-message', { sender, reciever, result });
                 })
                 .catch(err => {
                     console.log(err);
-                    this.setState({ chatMessage: '' });
-                })
+                });
+
+            this.setState({ chatMessage: '' });
         }
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        if (nextState.allMessages !== this.state.allMessages) {
-            this.props.profile.socket.once('chat message', result => {
+    componentWillUpdate(prevProps, prevState) {
+        const { user } = prevProps.auth;
+        const friend = prevProps.friend.user;
+
+        if (prevState.allMessages !== this.state.allMessages) {
+            this.state.socket.once(PRIVATE_CHAT_MESSAGE, result => {
                 var updatedMessages = [...this.state.allMessages];
                 this.setState({ allMessages: updatedMessages.concat(result) });
+            });
+            this.scrollToBottom();
+        }
+        if (this.props.friend.user !== prevProps.friend.user) {
+            axios.post('/getchat', {
+                userId: user.id,
+                friendId: friend._id
             })
+                .then(result => {
+                    this.setState({ allMessages: result.data });
+                })
+                .catch(err => {
+                    console.log(err);
+                })
         }
     }
 
@@ -153,19 +178,18 @@ class ChatBox extends Component {
         const userId = this.props.auth.user.id;
         let sortedMessages = (this.state.allMessages) ? this.state.allMessages.sort((a, b) => a.createdAt < b.createdAt ? -1 : 1) : [];
 
-
         return (
             <div className={classes.chatBoxMain}>
                 <div className={classes.topBar}>
                     <div className={classes.userInfo}>
-                        <Avatar alt="Batman" src={(user.profileImage) ? '/' + user.profileImage : '/images/blank.png'} />
+                        <Avatar onError={(e) => { e.target.src = 'images/404.png' }} alt={user.name} src={(user.profileImage) ? user.profileImage : 'images/blank.png'} />
                         <Typography component="p">{user.name}</Typography>
                     </div>
                     <div><CloseIcon className={classes.close} onClick={this.props.click.bind(this)} /></div>
                 </div>
                 <Paper className={classes.chatBox}>
                     <div className={classes.chatWindow}>
-                        {sortedMessages.map(message => (
+                        {sortedMessages.map(message =>
                             (message.from._id === userId) ?
                                 <div key={message._id} className={classes.msgRight}>
                                     <Typography component="p">{message.message}</Typography>
@@ -173,7 +197,9 @@ class ChatBox extends Component {
                                 <div key={message._id} className={classes.msgLeft}>
                                     <Typography component="p">{message.message}</Typography>
                                 </div>
-                        ))}
+                        )}
+
+                        <div ref={this.messagesEndRef} />
                     </div>
                     <div className={classes.sendMessageFooter}>
                         <Input className={classes.textBox}

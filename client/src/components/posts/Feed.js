@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
@@ -7,15 +8,13 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import SinglePost from './SinglePost';
-import CommentIcon from '@material-ui/icons/Comment';
-import LikeIcon from '@material-ui/icons/ThumbUp';
-import ShareIcon from '@material-ui/icons/Share';
-import Typography from '@material-ui/core/Typography';
-import Comments from './comments/Comments';
+import CommentContainer from './comments/CommentContainer';
 import CreateComment from './comments/CreateComment';
 import { connect } from 'react-redux';
-import axios from 'axios';
-import { getFeed, likePost } from '../../actions/postActions';
+import { getFeed, likePost, clearAllPosts } from '../../actions/postActions';
+import PostActions from '../../common/PostActions';
+import PresentationLoader from '../../common/PresentationLoader';
+import PostActionResult from '../../common/PostActionResult';
 
 const useStyles = theme => ({
     root: {
@@ -58,14 +57,21 @@ const useStyles = theme => ({
         alignItems: 'center',
         textAlign: 'center',
         padding: theme.spacing(0, 2),
+        transition: 'all 0.5s',
         '&:hover': {
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transform: 'scale(1.1)',
+            '& > *': {
+                color: '#385898',
+            }
+        },
+        '&:active': {
+            transform: 'scale(0.9)'
         }
     },
     actionIcons: {
         margin: theme.spacing(-0.5, 0.5),
-<<<<<<< HEAD
-        color: '#385898',
+        color: '#385898'
     },
     takeAction: {
         margin: theme.spacing(-0.5, 0.5),
@@ -80,23 +86,6 @@ const useStyles = theme => ({
     createComment: {
         marginTop: theme.spacing(2)
     },
-=======
-        color:'#385898',
-    },
-    takeAction:{
-        margin: theme.spacing(-0.5, 0.5),
-        color:'#e9eaed'
-    },
-    likeResultIcon:{
-        margin: theme.spacing(-0.5, 0.5),
-    },
-    commentSection: {
-        marginTop: theme.spacing(1)
-    },
-    createComment: {
-        marginTop: theme.spacing(2)
-    },
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
     comments: {
         marginTop: theme.spacing(1)
     },
@@ -108,87 +97,103 @@ const useStyles = theme => ({
 })
 
 class Feed extends Component {
-
-    componentDidMount() {
-        const { id } = this.props.auth.user;
-        this.props.getFeed(id);
-    }
-
-<<<<<<< HEAD
-    componentDidUpdate(prevProps) {
-        if (prevProps.post.allPosts !== this.props.post.allPosts) {
-            const { id } = this.props.auth.user;
-            this.props.getFeed(id);
+    constructor() {
+        super();
+        this.state = {
+            start: 1,
+            count: 4
         }
     }
 
-=======
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
+    componentDidMount() {
+        this.props.clearAllPosts();
+        const { start, count } = this.state;
+        const { id } = this.props.auth.user;
+        this.props.getFeed(id, start, count);
+    }
+
     handleLike = (postId) => {
         const { id } = this.props.auth.user;
         this.props.likePost(postId, id);
     }
 
+    fetchData = () => {
+        const { start, count } = this.state;
+        this.setState({ start: start + Math.ceil(count / 2) });
+        const { id } = this.props.auth.user;
+        this.props.getFeed(id, start + Math.ceil(count / 2), count); // total count 4 , 2 of user and 2 of friends
+    }
+
+    checkUserLike = (post, user) => {
+        return post.like && post.like.find(l => l.user === user.id);
+    }
+
 
     render() {
         const { classes } = this.props;
-        const { allPosts } = this.props.post;
+        let { allPosts, hasMorePosts } = this.props.post;
         const { user } = this.props.auth;
+
         return (
             <div>
-                {
-                    (allPosts) ? allPosts.map(post => (
-                        <Paper key={post._id} className={classes.root}>
-                            <List className={classes.list}>
-                                <ListItem alignItems="flex-start">
-                                    <ListItemAvatar>
-<<<<<<< HEAD
-                                        <Avatar alt="Remy Sharp" src={'/' + post.createdBy.profileImage} />
-=======
-                                        <Avatar alt="Remy Sharp" src={'/'+post.createdBy.profileImage} />
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
-                                    </ListItemAvatar>
-                                    <ListItemText
-                                        primary={post.createdBy.name}
+                <InfiniteScroll
+                    dataLength={allPosts.length}
+                    next={this.fetchData}
+                    hasMore={hasMorePosts}
+                    pullDownToRefresh={true}
+                    refreshFunction={this.fetchData}
+                    loader={<PresentationLoader />}>
+                    {
+                        (allPosts) ? allPosts.map(post => (
+                            <Paper key={post._id} className={classes.root}>
+                                <List className={classes.list}>
+                                    <ListItem alignItems="flex-start">
+                                        <ListItemAvatar>
+                                            <Avatar onError={(e) => { e.target.src = 'images/404.png' }} alt="Remy Sharp" src={(post.createdBy.profileImage) ? post.createdBy.profileImage : 'images/blank.png'} />
+                                        </ListItemAvatar>
+                                        <ListItemText
+                                            primary={post.createdBy.name}
+                                        />
+                                    </ListItem >
+                                </List>
+                                <SinglePost post={post} />
+                                <div className={classes.actionsResult}>
+                                    <PostActionResult
+                                        actionsResultItem={classes.actionsResultItem}
+                                        likeResultIcon={classes.likeResultIcon}
+                                        like={post.like} />
+                                </div>
+                                <hr className={classes.divider} />
+                                <div className={classes.actionsList}>
+
+                                    <PostActions
+                                        actionItems={classes.actionItems}
+                                        actionIcons={classes.actionIcons}
+                                        takeAction={classes.takeAction}
+                                        postId={post._id}
+                                        post={post}
+                                        user={user}
+                                        handleLike={this.handleLike}
+                                        checkUserLike={this.checkUserLike}
                                     />
-                                </ListItem >
-                            </List>
-                            <SinglePost post={post} />
-                            <div className={classes.actionsResult}>
-                                <Typography className={classes.actionsResultItem}><LikeIcon className={classes.likeResultIcon} color="primary" /></Typography>
-                                <Typography className={classes.actionsResultItem}>{(post.like.length > 0) ? post.like.length : 0}</Typography>
-                            </div>
-                            <hr className={classes.divider} />
-                            <div className={classes.actionsList}>
-<<<<<<< HEAD
-                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.find(l => l.user === user.id) ? classes.actionIcons : classes.takeAction} />Like</Typography>
-=======
-                                <Typography onClick={() => this.handleLike(post._id)} className={classes.actionItems}><LikeIcon className={post.like.find(l=> l.user === user.id)?classes.actionIcons:classes.takeAction} />Like</Typography>
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
-                                <Typography className={classes.actionItems}><CommentIcon className={classes.actionIcons} />Comment</Typography>
-                                <Typography className={classes.actionItems}><ShareIcon className={classes.actionIcons} />Share</Typography>
-                            </div>
-                            <hr className={classes.divider} />
-                            <div className={classes.commentSection}>
-                                <div className={classes.createComment}>
-                                    <CreateComment postId={post._id} />
                                 </div>
-                                <div className={classes.comments}>
-<<<<<<< HEAD
-                                    {(post.comments) ? post.comments.map(comment => (
-                                        <Comments key={comment._id} comment={comment} />
-                                    )) : null}
-=======
-                                    {(post.comments)?post.comments.map(comment=>(
-                                        <Comments key={comment._id} comment={comment} />
-                                    )):null}
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e
+                                <hr className={classes.divider} />
+                                <div className={classes.commentSection}>
+                                    <div className={classes.createComment}>
+                                        <CreateComment postId={post._id} />
+                                    </div>
+                                    <div className={classes.comments}>
+                                        {(post.comments && post.comments.length > 0) ?
+                                            <CommentContainer comments={post.comments} />
+                                            :
+                                            <p>No comments to show</p>}
+                                    </div>
                                 </div>
-                            </div>
-                        </Paper>
-                    )) :
-                        null
-                }
+                            </Paper>
+                        )) :
+                            <PresentationLoader />
+                    }
+                </InfiniteScroll>
             </div>
         )
     }
@@ -199,4 +204,4 @@ const mapStateToProps = state => ({
     post: state.post
 })
 
-export default connect(mapStateToProps, { getFeed, likePost })(withStyles(useStyles)(Feed));
+export default connect(mapStateToProps, { getFeed, likePost, clearAllPosts })(withStyles(useStyles)(Feed));

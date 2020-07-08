@@ -1,12 +1,16 @@
-import { GET_FEED, SUBMIT_POST, CREATE_COMMENT } from './Types';
+import { GET_FEED, SUBMIT_POST, CLEAR_POSTS, CREATE_COMMENT, LIKE_COMMENT } from './Types';
 import axios from 'axios';
-;
-export const getFeed = (id) => dispatch => {
-    axios.post('/getfeed', { userId: id })
+
+
+export const getFeed = (id, start, count) => dispatch => {
+    axios.post('/getfeed', { userId: id, start, count })
         .then(result => {
             dispatch({
                 type: GET_FEED,
-                payload: result.data
+                payload: {
+                    data: result.data,
+                    hasMorePosts: (result.data.length) ? true : false
+                }
             })
         })
         .catch(err => {
@@ -33,7 +37,10 @@ export const likePost = (postId, id) => dispatch => {
         userId: id
     })
         .then(result => {
-            dispatch(getFeed(id))
+            dispatch({
+                type: LIKE_COMMENT,
+                payload: result.data
+            })
         })
         .catch(err => {
             console.log(err);
@@ -49,8 +56,8 @@ export const createComment = (userId, postId, text) => {
         })
             .then(result => {
                 dispatch({
-                    type:CREATE_COMMENT,
-                    payload:result.data[0]
+                    type: CREATE_COMMENT,
+                    payload: result.data[0]
                 })
             })
             .catch(err => {
@@ -58,8 +65,11 @@ export const createComment = (userId, postId, text) => {
             })
     }
 
-<<<<<<< HEAD
 }
-=======
+
+export const clearAllPosts = () => dispatch => {
+    dispatch({
+        type: CLEAR_POSTS,
+        payload: []
+    })
 }
->>>>>>> d4b7a394787a9248ce27b16d5e143bb9be3c778e

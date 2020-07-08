@@ -18,15 +18,13 @@ const userSchema=new Schema({
         type:String
     },
     contactNumber:{
-        type:Number
+        type:String
     },
     dob:{
-        type:String,
-        required:true
+        type:String
     },
     gender:{
-        type:String,
-        required:true
+        type:String
     },
     profileImage:{
         type:String

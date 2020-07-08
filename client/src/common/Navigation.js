@@ -16,21 +16,23 @@ import HomeIcon from '@material-ui/icons/Home';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import { Link, NavLink, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '../actions/authActions';
 import SearchBox from './SearchBox';
 import PersonIcon from '@material-ui/icons/PersonRounded';
 import { Popper, Paper } from '@material-ui/core';
 import axios from 'axios';
-import Button from '@material-ui/core/Button';
 
 const useStyles = theme => ({
     grow: {
         flexGrow: 1,
     },
+    headerBar: {
+        height: '55px'
+    },
     appBar: {
-        minHeight: '50px'
+        height: '50px'
     },
     menuButton: {
         marginRight: theme.spacing(2),
@@ -188,7 +190,6 @@ class Navigation extends Component {
                     })
                 })
                 .catch(err => {
-                    console.log(err);
                 })
         }
     }
@@ -303,7 +304,7 @@ class Navigation extends Component {
                     }
                 })}>
                     <ListItemAvatar>
-                        <Avatar alt="Remy Sharp" src={'/' + user.profileImage} />
+                        <Avatar onError={(e) => { e.target.src = 'images/404.png' }} src={(user.profileImage)?user.profileImage:'images/blank.png'} />
                     </ListItemAvatar>
                     <ListItemText primary={this.state.userName} />
                 </MenuItem>
@@ -353,8 +354,8 @@ class Navigation extends Component {
 
         return (
             <div className={classes.grow}>
-                <AppBar className={classes.appBar} position="static">
-                    <Toolbar>
+                <AppBar className={classes.headerBar} position="fixed">
+                    <Toolbar className={classes.appBar} style={{minHeight:'50px'}}>
                         <Typography className={classes.title} variant="h6" noWrap>
                             SocialConnect
                             </Typography>
@@ -372,7 +373,7 @@ class Navigation extends Component {
                                 }
                             })}>
                                 <ListItemAvatar>
-                                    <Avatar alt="Remy Sharp" src={'/' + user.profileImage} />
+                                    <Avatar onError={(e) => { e.target.src='images/404.png' }} src={(user.profileImage)? user.profileImage:'images/blank.png'} />
                                 </ListItemAvatar>
                                 <ListItemText primary={this.state.userName} />
                             </MenuItem>
@@ -412,7 +413,7 @@ class Navigation extends Component {
                                                 <React.Fragment key={friend.user._id}>
                                                     <div className={classes.friendInfo} >
                                                         <ListItemAvatar>
-                                                            <Avatar alt="Remy Sharp" src={(friend.user.profileImage) ? '/' + friend.user.profileImage : '/images/blank.png'} />
+                                                            <Avatar onError={(e) => { e.target.src='images/404.png' }} alt="Remy Sharp" src={(friend.user.profileImage) ? friend.user.profileImage : 'images/blank.png'} />
                                                         </ListItemAvatar>
                                                         <div className={classes.typography}>
                                                             <Typography > {friend.user.name} </Typography>

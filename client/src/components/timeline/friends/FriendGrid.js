@@ -66,7 +66,7 @@ export default function FriendGrid(props) {
                     <GridList cellHeight={120} className={classes.gridList} cols={3}>
                         {friends.map(friend => (
                             <GridListTile key={friend._id} cols={1}>
-                                <img src={(friend.profileImage)?'/'+friend.profileImage:'/images/blank.png'} alt={friend.name} />
+                                <img onError={(e) => { e.target.src='images/404.png' }} src={(friend.profileImage)?friend.profileImage:'images/blank.png'} alt={friend.name} />
                                 <GridListTileBar
                                     title={friend.name}
                                 />

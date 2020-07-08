@@ -1,12 +1,27 @@
 import React from 'react';
 import CreatePost from './CreatePost';
 import Feed from './Feed';
+import { makeStyles } from '@material-ui/core';
+import ErrorBoundary from '../../common/ErrorBoundary';
 
-export default function DashBoard() {
+const useStyles = makeStyles(theme => ({
+    root: {
+        marginTop: '80px',
+        minHeight: '100vh'
+    }
+}));
+
+function DashBoard() {
+    const classes = useStyles();
+
     return (
-        <div style={{marginTop:'20px'}}>
-            <CreatePost/>
-            <Feed/>
-        </div>
+        <ErrorBoundary>
+            <div className={classes.root} >
+                <CreatePost />
+                <Feed />
+            </div>
+        </ErrorBoundary>
     )
 }
+
+export default DashBoard;

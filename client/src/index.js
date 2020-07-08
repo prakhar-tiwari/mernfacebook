@@ -10,8 +10,8 @@ import jwt from 'jsonwebtoken';
 import authReducer from './reducers/authReducer';
 import postReducer from './reducers/postReducer';
 import profileReducer from './reducers/profileReducer';
-import { setCurrentUser, logout } from './actions/authActions';
-import io from 'socket.io-client';
+import errorReducer from './reducers/errorReducer';
+import { setCurrentUser, logout, socketInit } from './actions/authActions';
 
 
 const middleware = [thunk];
@@ -19,7 +19,8 @@ const middleware = [thunk];
 const rootReducer = combineReducers({
     auth: authReducer,
     post: postReducer,
-    profile: profileReducer
+    profile: profileReducer,
+    error: errorReducer
 })
 
 const initialState = {}
@@ -27,10 +28,19 @@ const initialState = {}
 const store = createStore(
     rootReducer,
     initialState,
-    compose(
-        applyMiddleware(...middleware),
-        window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-    )
+    (process.env.NODE_ENV === 'production')
+        ? compose(
+            applyMiddleware(...middleware)
+        )
+        :
+        (window.__REDUX_DEVTOOLS_EXTENSION__)
+            ? compose(
+                applyMiddleware(...middleware),
+                window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+            )
+            : compose(
+                applyMiddleware(...middleware)
+            )
 )
 
 if (localStorage.getItem('token')) {
@@ -38,10 +48,7 @@ if (localStorage.getItem('token')) {
     try {
         var decodedToken = jwt.verify(token.substring(7), 'secret');
         store.dispatch(setCurrentUser(decodedToken));
-        store.dispatch({
-            type:'SOCKET_CONNECT',
-            payload:io('http://localhost:8080')
-        })
+        store.dispatch(socketInit());
     }
     catch (error) {
         store.dispatch(logout());

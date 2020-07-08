@@ -16,6 +16,8 @@ import { Icon } from '@material-ui/core';
 import { connect } from 'react-redux';
 import TagFriends from './TagFriends';
 import { submitPost } from '../../actions/postActions';
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker } from 'emoji-mart';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -44,8 +46,10 @@ const useStyles = makeStyles(theme => ({
         fontWeight: 'bold',
         color: '#385898',
         height: theme.spacing(5),
+        transition: '0.5s all',
         "&:hover": {
             cursor: 'pointer',
+            background: '#c4c5c7',
         }
     },
     postButton: {
@@ -53,7 +57,8 @@ const useStyles = makeStyles(theme => ({
         marginTop: theme.spacing(2)
     },
     postIcon: {
-        marginLeft: theme.spacing(2)
+        marginLeft: theme.spacing(2),
+        transition: '0.5s all'
     },
     input: {
         display: 'none',
@@ -61,10 +66,15 @@ const useStyles = makeStyles(theme => ({
     card: {
         width: '100%',
     },
-    media: {
-        marginTop: theme.spacing(2),
+    media_image: {
         paddingTop: '56.25%', // 16:9
         backgroundPosition: 'initial'
+    },
+    media_video: {
+        width: 'inherit',
+        "& video": {
+            width: 'inherit'
+        }
     },
     imagePreviewBox: {
         display: 'flex',
@@ -79,6 +89,10 @@ const useStyles = makeStyles(theme => ({
         maxWidth: '100px',
         maxHeight: '100px',
         "& img": {
+            width: '100%',
+            height: '100%'
+        },
+        "& video": {
             width: '100%',
             height: '100%'
         }
@@ -108,6 +122,11 @@ const useStyles = makeStyles(theme => ({
     secondDivider: {
         marginTop: '8px',
         lineHeight: '1px'
+    },
+    emojiPicker: {
+        position: 'absolute',
+        zIndex: 1000,
+        marginTop: '10px'
     }
 }));
 
@@ -116,29 +135,52 @@ function CreatePost(props) {
     const [postText, setPostText] = useState('');
     const [postFiles, setPostFiles] = useState([]);
     const [imagePreview, setImagePreview] = useState(null);
+    const [videoPreview, setVideoPreview] = useState(null);
     const [imageName, setImageName] = useState('');
     const [uploadedImages, setUploadedImages] = useState([]);
+    const [uploadedVideos, setUploadedVideos] = useState([]);
     const [tagFriends, setTagFriends] = useState(false);
     const [taggedFriends, setTaggedFriends] = useState([]);
+    const [chosenEmoji, setChosenEmoji] = useState('');
+    const [showEmoji, setShowEmoji] = useState(false);
 
     const onImageChange = (event) => {
         var file = event.target.files[0];
         if (file) {
+            const fileType = file.type;
             const fileArr = [...postFiles];
             fileArr.push(file);
             setPostFiles(fileArr);
-            var reader = new FileReader();
-            const url = reader.readAsDataURL(file);
-            reader.onloadend = (event) => {
-                setImagePreview(reader.result);
-                setImageName(file.name);
-                const imageDetails = {
-                    imageSrc: reader.result,
-                    name: file.name
+            if (fileType.includes('image')) {
+                var reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = (event) => {
+                    setVideoPreview(null)
+                    setImagePreview(reader.result);
+                    setImageName(file.name);
+                    const imageDetails = {
+                        imageSrc: reader.result,
+                        name: file.name
+                    }
+                    const updatedImages = [...uploadedImages];
+                    updatedImages.unshift(imageDetails);
+                    setUploadedImages(updatedImages);
                 }
-                const updatedImages = [...uploadedImages];
-                updatedImages.unshift(imageDetails);
-                setUploadedImages(updatedImages);
+            }
+            if (fileType.includes('video')) {
+                var reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = (event) => {
+                    setImagePreview(null)
+                    setVideoPreview(reader.result);
+                    const videoDetails = {
+                        videoSrc: reader.result,
+                        name: file.name
+                    }
+                    const updatedVideos = [...uploadedVideos];
+                    updatedVideos.unshift(videoDetails);
+                    setUploadedVideos(updatedVideos);
+                }
             }
         }
     }
@@ -156,23 +198,31 @@ function CreatePost(props) {
         formData.append('taggedFriends', JSON.stringify(taggedFIds));
         props.submitPost(formData);
         setImagePreview(null);
+        setVideoPreview(null);
         setPostFiles([]);
         setPostText('');
         setTagFriends(false);
         setTaggedFriends([]);
         setImageName('');
         setUploadedImages([]);
+        setUploadedVideos([]);
     }
 
     const handleTagging = (selectedFriends) => {
         setTaggedFriends(selectedFriends);
     }
 
+    const onEmojiClick = (event) => {
+        const emoji = event.native;
+        const text = (postText) ? `${postText}${emoji}` : emoji;
+        setPostText(text);
+    }
+
     return (
         <div className={classes.root}>
             <div className={classes.postHeader}>
                 Create Post
-        </div>
+            </div>
             <Paper className={classes.paper}>
                 <Input
                     placeholder="Write something here..."
@@ -182,13 +232,27 @@ function CreatePost(props) {
                     onChange={(e) => setPostText(e.target.value)}
                     value={postText}
                 />
-                {(imagePreview != null) ? <Card className={classes.card}>
-                    <CardMedia
-                        className={classes.media}
-                        image={imagePreview}
-                        title={imageName}
-                    />
-                </Card> : null}
+                {
+                    (imagePreview != null) ?
+                        <Card className={classes.card}>
+                            <CardMedia
+                                className={classes.media_image}
+                                image={imagePreview}
+                                title={imageName}
+                            />
+                        </Card> :
+                        null
+                }
+
+                {
+                    (videoPreview != null) ?
+                        <Card className={classes.card}>
+                            <CardMedia className={classes.media_video}>
+                                <video src={videoPreview} controls></video>
+                            </CardMedia>
+                        </Card> :
+                        null
+                }
 
                 {(tagFriends) ? <Divider className={classes.firstDivider} /> : null}
 
@@ -200,6 +264,11 @@ function CreatePost(props) {
                         {uploadedImages.map((image, index) => (
                             <div key={index} className={classes.imageBox}>
                                 <img src={image.imageSrc} alt={image.name} />
+                            </div>
+                        ))}
+                        {uploadedVideos.map((video, index) => (
+                            <div key={index} className={classes.imageBox}>
+                                <video src={video.videoSrc} />
                             </div>
                         ))}
 
@@ -233,6 +302,16 @@ function CreatePost(props) {
                             className={classes.chip}
 
                         />
+                    </label>
+
+                    <label>
+                        <Chip
+                            onClick={() => setShowEmoji(!showEmoji)} htmlFor=""
+                            label="😀"
+                            color="primary"
+                            className={classes.chip}
+                        />
+                        {(showEmoji) ? <Picker style={{ position: 'absolute', zIndex: 1000, transform: 'translate(-50%,20%)' }} onSelect={(e) => onEmojiClick(e)} /> : null}
                     </label>
                     <Button
                         disabled={(postText || postFiles.length > 0) ? false : true}
