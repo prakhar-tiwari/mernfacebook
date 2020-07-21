@@ -286,7 +286,7 @@ class TimeLineContainer extends Component {
         const image = event.target.files[0];
         const formData = new FormData();
         formData.append('userId', user.id);
-        formData.append('fileImages', image);
+        formData.append('images', image);
         this.props.uploadPhoto(formData, user.userName)
 
     }

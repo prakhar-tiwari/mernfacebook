@@ -339,13 +339,13 @@ exports.submitPost = (req, res, next) => {
 
     const allImages = images.filter(image => image.mimetype.includes('image')).map(image => {
         return {
-            imageUrl: image.location
+            imageUrl: image.location || image.path
         }
     });
 
     const allVideos = images.filter(image => image.mimetype.includes('video')).map(video => {
         return {
-            videoUrl: video.location
+            videoUrl: video.location || video.path
         }
     });
 

@@ -192,7 +192,7 @@ function CreatePost(props) {
         let formData = new FormData();
         formData.append('postText', postText);
         postFiles.map(postFile => {
-            formData.append('fileImages', postFile);
+            formData.append('images', postFile);
         })
         formData.append('userId', user.id);
         formData.append('taggedFriends', JSON.stringify(taggedFIds));

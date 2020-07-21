@@ -416,7 +416,7 @@ exports.uploadPhoto = (req, res, next) => {
     if (!images) {
         return res.status(400).json({ message: 'Attached file is not a valid image' })
     }
-    const imagePath = images[0].location;
+    const imagePath = images[0].location || images[0].path;
     User.updateOne(
         { '_id': userId },
         { $set: { 'profileImage': imagePath } }
