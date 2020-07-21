@@ -11,7 +11,6 @@ const authRoute = require('./routes/auth');
 const postRoute = require('./routes/postRoute');
 const profileRoute = require('./routes/profileRoute');
 const chatRoute = require('./routes/chatRoute');
-const uploadRoute = require('./routes/uploadRoute');
 
 const SocketManager = require('./SocketManager');
 const keys = require('./config/keys');
@@ -81,7 +80,6 @@ app.use(authRoute);
 app.use(postRoute);
 app.use(profileRoute);
 app.use(chatRoute);
-// app.use(uploadRoute);
 
 
 
