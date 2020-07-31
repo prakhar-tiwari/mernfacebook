@@ -20,7 +20,7 @@ exports.signup = (req, res, next) => {
     })
         .then(user => {
             if (user && user.length > 0) {
-                return res.status(500).json({ message: 'User already exists' })
+                return res.status(400).json({ message: 'User already exists' })
             }
             let userName = name.split(' ').join('.').toLowerCase();
             User.find({ 'name': name }).countDocuments()
