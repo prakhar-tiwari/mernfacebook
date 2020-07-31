@@ -15,6 +15,7 @@ import About from './About';
 import Friends from './Friends';
 import Photos from './Photos';
 import axios from 'axios';
+import * as constant from '../../common/constants/constant';
 
 const useStyles = theme => ({
     timeline: {
@@ -286,7 +287,11 @@ class TimeLineContainer extends Component {
         const image = event.target.files[0];
         const formData = new FormData();
         formData.append('userId', user.id);
-        formData.append('images', image);
+        let fileStorageFolder = constant.IMAGEUPLOADSERVER;
+        if(process.env.NODE_ENV === 'production'){
+            fileStorageFolder = constant.IMAGEUPLOADS3
+        }
+        formData.append(fileStorageFolder, image);
         this.props.uploadPhoto(formData, user.userName)
 
     }

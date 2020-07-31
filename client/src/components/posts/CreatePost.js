@@ -18,6 +18,7 @@ import TagFriends from './TagFriends';
 import { submitPost } from '../../actions/postActions';
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker } from 'emoji-mart';
+import * as constant from '../../common/constants/constant';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -191,8 +192,12 @@ function CreatePost(props) {
         const taggedFIds = (taggedFriends) ? taggedFriends.map(tFriend => tFriend.id) : null;
         let formData = new FormData();
         formData.append('postText', postText);
+        let fileStorageFolder = constant.IMAGEUPLOADSERVER;
+        if(process.env.NODE_ENV === 'production'){
+            fileStorageFolder = constant.IMAGEUPLOADS3
+        }
         postFiles.map(postFile => {
-            formData.append('images', postFile);
+            formData.append(fileStorageFolder, postFile);
         })
         formData.append('userId', user.id);
         formData.append('taggedFriends', JSON.stringify(taggedFIds));
