@@ -36,7 +36,7 @@ function CreateComment(props) {
         <div className={classes.commentSection}>
             <div>
                 <ListItemAvatar>
-                    <Avatar alt="Remy Sharp" src={'/' + user.profileImage} />
+                    <Avatar alt="Remy Sharp" src={user.profileImage} />
                 </ListItemAvatar>
             </div>
             <div className={classes.commentBox}>
