@@ -10,6 +10,8 @@ Router.post('/getpost',postController.getPost);
 
 Router.post('/submitpost',postController.submitPost);
 
+Router.post('/updatethumbnail',postController.updateThumbnail);
+
 Router.post('/likepost',postController.likePost);
 
 Router.post('/createcomment',postController.createComment);

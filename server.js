@@ -74,7 +74,7 @@ const filter = (req, file, cb) => {
   }
 };
 
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV == "production") {
   app.use(
     multer({ storage: s3Storage, fileFilter: filter }).array("fileImages")
   );
